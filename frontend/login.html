@@ -12,14 +12,20 @@
 </head>
 <body>
 
-  <!-- 右上の新規登録/ログイン切り替えボタン -->
-  <header class="top-nav">
-    <button id="nav-toggle-btn" class="nav-signup-btn" onclick="toggleForm()">新規登録</button>
-  </header>
+<!-- 右上の新規登録ボタン -->
+<header class="top-nav">
+  <button
+    id="nav-toggle-btn"
+    class="nav-signup-btn"
+    onclick="location.href='signup.html'">
+    新規登録
+  </button>
+</header>
+
 
   <!-- 上部のとろけるチョコレートデザイン（途切れ・ズレを修正したSVG） -->
   <div class="drip-container">
-    <svg class="drip-svg" viewBox="0 0 1000 200" preserveAspectRatio="none">
+    <svg class="drip-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
       <!-- 影の部分 -->
       <path fill="#3a1b0e" d="M0,0 L1000,0 L1000,90 Q950,160 900,90 T800,100 T700,170 T600,80 T500,150 T400,90 T300,180 T200,80 T100,160 T0,90 Z"></path>
       <!-- メインのチョコレート -->
@@ -73,10 +79,11 @@
         </form>
 
         <div class="card-footer">
-          <a href="#" onclick="toggleForm(); return false;">新規登録はこちら</a>
+          <a href="signup.html">新規登録はこちら</a>
           <span>•</span>
           <a href="#">パスワードを忘れた方</a>
         </div>
+
       </div>
 
       <!-- 2. 新規登録フォーム -->

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピク日記 - 新規登録</title>
+
+  <link rel="stylesheet" href="css/login.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500;700&display=swap"
+    rel="stylesheet">
+</head>
+<body>
+
+  <header class="top-nav">
+    <button
+      class="nav-signup-btn"
+      onclick="location.href='login.html'">
+      ログイン
+    </button>
+  </header>
+
+  <main class="login-container">
+
+    <div class="logo-plate">
+      <div class="logo-inner">
+        <span class="logo-sub">絵日記アプリ</span>
+        <h1 class="logo-title">
+          <span class="char">ピ</span>
+          <span class="char">ク</span>
+          <span class="char">日</span>
+          <span class="char">記</span>
+        </h1>
+        <div class="logo-deco">✨ 🍓 ✨</div>
+      </div>
+    </div>
+
+    <div class="choco-card">
+
+      <div class="choco-grid">
+        <div class="choco-piece"></div>
+        <div class="choco-piece"></div>
+        <div class="choco-piece"></div>
+        <div class="choco-piece"></div>
+      </div>
+
+      <div class="form-section active">
+        <h2 class="card-title">新規登録</h2>
+
+        <form class="login-form"
+          onsubmit="event.preventDefault(); alert('アカウントを作成しました！');">
+
+          <div class="input-group">
+            <label for="signup-name">ニックネーム</label>
+            <input
+              type="text"
+              id="signup-name"
+              name="nickname"
+              placeholder="ぴくちゃん"
+              required>
+          </div>
+
+          <div class="input-group">
+            <label for="signup-email">メールアドレス</label>
+            <input
+              type="email"
+              id="signup-email"
+              name="email"
+              placeholder="example@pikunikki.com"
+              required>
+          </div>
+
+          <div class="input-group">
+            <label for="signup-password">パスワード</label>
+            <input
+              type="password"
+              id="signup-password"
+              name="password"
+              placeholder="8文字以上"
+              minlength="8"
+              required>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            新規登録する 
+          </button>
+        </form>
+
+        <div class="card-footer">
+          <a href="login.html">すでにアカウントをお持ちの方</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>
