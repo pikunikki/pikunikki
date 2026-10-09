@@ -1,37 +1,132 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン - pikunikki</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピク日記 - ログイン</title>
+  <link rel="stylesheet" href="css/login.css">
+  <!-- ポップなフォント（Google Fonts）の読み込み -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<main>
-    <h1>ログイン</h1>
-    <form id="form">
-        <label for="username">ユーザー名</label>
-        <input type="text" id="username" required>
-        <label for="password">パスワード</label>
-        <input type="password" id="password" required>
-        <p class="error" id="error"></p>
-        <button class="btn" type="submit">ログイン</button>
-    </form>
-    <a class="btn sub" href="register.html">新規登録</a>
-</main>
-<script src="app.js"></script>
-<script>
-document.getElementById('form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = username.value.trim();
-  const user = getUsers()[name];
-  if (!user || user.password !== await hash(password.value)) {
-    error.textContent = 'ユーザー名またはパスワードが違います';
-    return;
-  }
-  setCurrentName(name);
-  location.href = 'home.html';
-});
-</script>
+
+  <!-- 右上の新規登録/ログイン切り替えボタン -->
+  <header class="top-nav">
+    <button id="nav-toggle-btn" class="nav-signup-btn" onclick="toggleForm()">新規登録</button>
+  </header>
+
+  <!-- 上部のとろけるチョコレートデザイン（途切れ・ズレを修正したSVG） -->
+  <div class="drip-container">
+    <svg class="drip-svg" viewBox="0 0 1000 200" preserveAspectRatio="none">
+      <!-- 影の部分 -->
+      <path fill="#3a1b0e" d="M0,0 L1000,0 L1000,90 Q950,160 900,90 T800,100 T700,170 T600,80 T500,150 T400,90 T300,180 T200,80 T100,160 T0,90 Z"></path>
+      <!-- メインのチョコレート -->
+      <path fill="#4e2a18" d="M0,0 L1000,0 L1000,80 Q950,150 900,80 T800,90 T700,160 T600,70 T500,140 T400,80 T300,170 T200,70 T100,150 T0,80 Z"></path>
+      <!-- ツヤ・ハイライト -->
+      <path fill="rgba(255,255,255,0.15)" d="M0,0 L1000,0 L1000,60 Q950,130 900,60 T800,70 T700,140 T600,50 T500,120 T400,60 T300,150 T200,50 T100,130 T0,60 Z"></path>
+    </svg>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <main class="login-container">
+    
+    <!-- ロゴ部分 (チョコプレート風デザイン) -->
+    <div class="logo-plate">
+      <div class="logo-inner">
+        <span class="logo-sub">絵日記アプリ</span>
+        <h1 class="logo-title">
+          <span class="char">ピ</span>
+          <span class="char">ク</span>
+          <span class="char">日</span>
+          <span class="char">記</span>
+        </h1>
+        <div class="logo-deco">✨ 🍓 ✨</div>
+      </div>
+    </div>
+
+    <!-- 板チョコモチーフのカード -->
+    <div class="choco-card">
+      <div class="choco-grid">
+        <div class="choco-piece"></div>
+        <div class="choco-piece"></div>
+        <div class="choco-piece"></div>
+        <div class="choco-piece"></div>
+      </div>
+
+      <!-- 1. ログインフォーム -->
+      <div id="login-section" class="form-section active">
+        <h2 class="card-title">ログイン</h2>
+        <form class="login-form" onsubmit="event.preventDefault(); alert('ログインしました！');">
+          <div class="input-group">
+            <label for="login-email">メールアドレス</label>
+            <input type="email" id="login-email" placeholder="example@pikunikki.com" required>
+          </div>
+
+          <div class="input-group">
+            <label for="login-password">パスワード</label>
+            <input type="password" id="login-password" placeholder="••••••••" required>
+          </div>
+
+          <button type="submit" class="submit-btn">ログイン</button>
+        </form>
+
+        <div class="card-footer">
+          <a href="#" onclick="toggleForm(); return false;">新規登録はこちら</a>
+          <span>•</span>
+          <a href="#">パスワードを忘れた方</a>
+        </div>
+      </div>
+
+      <!-- 2. 新規登録フォーム -->
+      <div id="signup-section" class="form-section">
+        <h2 class="card-title">新規登録</h2>
+        <form class="login-form" onsubmit="event.preventDefault(); alert('アカウントを作成しました！');">
+          <div class="input-group">
+            <label for="signup-name">ニックネーム</label>
+            <input type="text" id="signup-name" placeholder="ぴくちゃん" required>
+          </div>
+
+          <div class="input-group">
+            <label for="signup-email">メールアドレス</label>
+            <input type="email" id="signup-email" placeholder="example@pikunikki.com" required>
+          </div>
+
+          <div class="input-group">
+            <label for="signup-password">パスワード</label>
+            <input type="password" id="signup-password" placeholder="8文字以上" required>
+          </div>
+
+          <button type="submit" class="submit-btn signup-theme">新規登録する 🍫</button>
+        </form>
+
+        <div class="card-footer">
+          <a href="#" onclick="toggleForm(); return false;">すでにアカウントをお持ちの方</a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 切り替え用JavaScript -->
+  <script>
+    function toggleForm() {
+      const loginSection = document.getElementById('login-section');
+      const signupSection = document.getElementById('signup-section');
+      const navBtn = document.getElementById('nav-toggle-btn');
+
+      if (loginSection.classList.contains('active')) {
+        loginSection.classList.remove('active');
+        signupSection.classList.add('active');
+        navBtn.textContent = 'ログイン';
+      } else {
+        signupSection.classList.remove('active');
+        loginSection.classList.add('active');
+        navBtn.textContent = '新規登録';
+      }
+    }
+  </script>
 </body>
 </html>
