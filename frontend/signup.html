@@ -15,6 +15,18 @@
 </head>
 <body>
 
+    <!-- 上部のとろけるチョコレートデザイン（途切れ・ズレを修正したSVG） -->
+  <div class="drip-container">
+    <svg class="drip-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
+      <!-- 影の部分 -->
+      <path fill="#3a1b0e" d="M0,0 L1000,0 L1000,90 Q950,160 900,90 T800,100 T700,170 T600,80 T500,150 T400,90 T300,180 T200,80 T100,160 T0,90 Z"></path>
+      <!-- メインのチョコレート -->
+      <path fill="#4e2a18" d="M0,0 L1000,0 L1000,80 Q950,150 900,80 T800,90 T700,160 T600,70 T500,140 T400,80 T300,170 T200,70 T100,150 T0,80 Z"></path>
+      <!-- ツヤ・ハイライト -->
+      <path fill="rgba(255,255,255,0.15)" d="M0,0 L1000,0 L1000,60 Q950,130 900,60 T800,70 T700,140 T600,50 T500,120 T400,60 T300,150 T200,50 T100,130 T0,60 Z"></path>
+    </svg>
+  </div>
+
   <header class="top-nav">
     <button
       class="nav-signup-btn"
