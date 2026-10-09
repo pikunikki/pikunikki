@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キャラ選択 - pikunikki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <h1>キャラクターを選ぼう</h1>
+    <div class="chars" id="chars"></div>
+    <p class="error" id="error"></p>
+    <button class="btn" id="ok">これに決定</button>
+</main>
+<script src="app.js"></script>
+<script>
+const pending = JSON.parse(sessionStorage.getItem('pending') || 'null');
+if (!pending) location.replace('register.html');
+let selected = null;
+const box = document.getElementById('chars');
+CHARACTERS.forEach((c) => {
+  const el = document.createElement('div');
+  el.className = 'char';
+  el.innerHTML = `${c.emoji}<small>${c.name}</small>`;
+  el.onclick = () => {
+    selected = c.id;
+    box.querySelectorAll('.char').forEach((x) => x.classList.remove('selected'));
+    el.classList.add('selected');
+  };
+  box.appendChild(el);
+});
+document.getElementById('ok').onclick = () => {
+  if (!selected) { error.textContent = 'キャラクターを選んでください'; return; }
+  const users = getUsers();
+  users[pending.name] = { password: pending.password, character: selected, createdAt: Date.now() };
+  save('users', users);
+  sessionStorage.removeItem('pending');
+  setCurrentName(pending.name);
+  location.href = 'home.html';
+};
+</script>
+</body>
+</html>

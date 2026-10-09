@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿 - pikunikki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <h1>写真・日記を投稿</h1>
+    <form id="form">
+        <label for="photo">写真</label>
+        <input type="file" id="photo" accept="image/*">
+        <img id="preview" alt="" style="width:100%;margin-top:8px;display:none;border-radius:8px">
+        <label for="text">日記</label>
+        <textarea id="text" required></textarea>
+        <p class="error" id="error"></p>
+        <button class="btn" type="submit">投稿する</button>
+    </form>
+    <a class="btn sub" href="home.html">ホームに戻る</a>
+</main>
+<script src="app.js"></script>
+<script>
+requireLogin();
+let photoData = null;
+
+// localStorage の容量(約5MB)対策で、縮小してJPEGに変換して保存する
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 800 / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width = img.width * scale;
+      cv.height = img.height * scale;
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(img.src);
+      resolve(cv.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+photo.addEventListener('change', async () => {
+  const file = photo.files[0];
+  if (!file) { photoData = null; preview.style.display = 'none'; return; }
+  try {
+    photoData = await shrink(file);
+    preview.src = photoData;
+    preview.style.display = 'block';
+  } catch {
+    error.textContent = '画像を読み込めませんでした';
+  }
+});
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  try {
+    addPost({ user: getCurrentName(), text: text.value, photo: photoData, date: Date.now() });
+  } catch {
+    error.textContent = '保存に失敗しました(容量オーバーの可能性)';
+    return;
+  }
+  location.href = 'home.html';
+});
+</script>
+</body>
+</html>
