@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホーム - pikunikki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <h1>ホーム</h1>
+    <div class="avatar" id="avatar"></div>
+    <p style="text-align:center" id="hello"></p>
+    <div class="nav">
+        <a class="btn" href="post.html">日記・写真を投稿</a>
+        <a class="btn sub" href="mypage.html">マイページ</a>
+    </div>
+    <div id="posts"></div>
+</main>
+<script src="app.js"></script>
+<script>
+const user = requireLogin();
+const name = getCurrentName();
+avatar.textContent = getCharacter(user.character).emoji;
+hello.textContent = `${name}さん、こんにちは!`;
+const posts = getPosts(name);
+document.getElementById('posts').innerHTML = posts.length ? posts.map(postHtml).join('') : '<p style="text-align:center">まだ投稿がありません</p>';
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイページ - pikunikki</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <h1>マイページ</h1>
+    <div class="avatar" id="avatar"></div>
+    <p style="text-align:center" id="info"></p>
+    <a class="btn sub" href="home.html">ホームに戻る</a>
+    <button class="btn sub" onclick="logout()">ログアウト</button>
+</main>
+<script src="app.js"></script>
+<script>
+const user = requireLogin();
+const name = getCurrentName();
+const c = getCharacter(user.character);
+avatar.textContent = c.emoji;
+info.textContent = `${name} / キャラ: ${c.name} / 投稿数: ${getPosts(name).length}`;
+</script>
+</body>
+</html>
