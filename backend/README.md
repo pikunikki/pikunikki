@@ -25,4 +25,5 @@ npm start              # http://localhost:3000
 | GET | /api/posts | 自分の投稿一覧(要ログイン) |
 | POST | /api/posts | multipart: `text`(必須), `photo`(任意, 5MBまで) |
 
-`frontend/` は読み取り専用で静的配信しているので、同一オリジンでそのままCookieが使えます。
+`frontend/` を静的配信しているので、`http://localhost:3000/` で開けば同一オリジンでCookieが使えます。
+`GET /api/users/exists?username=` は新規登録画面の重複チェック用です。

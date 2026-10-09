@@ -56,6 +56,13 @@ app.get('/api/characters', wrap(async (req, res) => {
   res.json(rows);
 }));
 
+// 新規登録画面の重複チェック用
+app.get('/api/users/exists', wrap(async (req, res) => {
+  const name = typeof req.query.username === 'string' ? req.query.username.trim() : '';
+  const [rows] = await pool.query('SELECT 1 FROM users WHERE username = ?', [name]);
+  res.json({ exists: rows.length > 0 });
+}));
+
 // 新規登録(キャラ選択まで終えた後に呼ぶ)
 app.post('/api/register', wrap(async (req, res) => {
   const { username, password, character } = req.body || {};
