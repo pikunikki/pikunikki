@@ -16,7 +16,7 @@
 <script src="app.js"></script>
 <script>
 const pending = JSON.parse(sessionStorage.getItem('pending') || 'null');
-if (!pending) location.replace('register.html');
+if (!pending) location.replace('signup.html');
 let selected = null;
 const box = document.getElementById('chars');
 CHARACTERS.forEach((c) => {

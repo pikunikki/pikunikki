@@ -67,7 +67,7 @@ function getUsers() {
     // 任意のユーザー名に対し照合用オブジェクトを返す(実際の判定は hash() 内)
     return new Proxy({}, { get: (_, name) => { loginName = String(name); return { password: LOGIN_OK }; } });
   }
-  if (page.endsWith('register.html')) {
+  if (page.endsWith('signup.html')) {
     // 重複チェック: 既に存在すれば truthy
     return new Proxy({}, {
       get: (_, name) => {
@@ -86,7 +86,7 @@ function save(key, value) {
     const r = api('POST', '/api/register', { username, password: u.password, character: u.character });
     if (!r.ok) {
       alert((r.data && r.data.error) || '登録に失敗しました');
-      location.href = 'register.html';
+      location.href = 'signup.html';
       throw new Error('register failed'); // 後続の画面遷移を止める
     }
     meCache = undefined;
