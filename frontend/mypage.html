@@ -1,26 +1,124 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイページ - pikunikki</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピク日記 - マイページ</title>
+  <link rel="stylesheet" href="css/mypage.css">
 </head>
 <body>
-<main>
-    <h1>マイページ</h1>
-    <div class="avatar" id="avatar"></div>
-    <p style="text-align:center" id="info"></p>
-    <a class="btn sub" href="home.html">ホームに戻る</a>
-    <button class="btn sub" onclick="logout()">ログアウト</button>
-</main>
-<script src="app.js"></script>
-<script>
-const user = requireLogin();
-const name = getCurrentName();
-const c = getCharacter(user.character);
-avatar.textContent = c.emoji;
-info.textContent = `${name} / キャラ: ${c.name} / 投稿数: ${getPosts(name).length}`;
-</script>
+
+  <!-- 上部チョコレートフリル (SVG) -->
+  <svg class="header-drip" viewBox="0 0 1200 60" preserveAspectRatio="none">
+    <path fill="#4a2810" d="M0,0 L1200,0 L1200,20 C1150,20 1130,45 1100,45 C1070,45 1050,15 1000,15 C950,15 930,55 900,55 C870,55 850,25 800,25 C750,25 730,50 700,50 C670,50 650,20 600,20 C550,20 530,40 500,40 C470,40 450,10 400,10 C350,10 330,50 300,50 C270,50 250,20 200,20 C150,20 130,40 100,40 C70,40 50,15 0,15 Z"></path>
+  </svg>
+
+  <!-- ヘッダー -->
+  <header>
+    <div class="logo-card">
+      <p>絵日記アプリ</p>
+      <h1>ピク日記</h1>
+    </div>
+  </header>
+
+  <!-- メインレイアウト -->
+  <main>
+    <!-- 左カラム -->
+    <div class="column">
+      <!-- プロフィール -->
+      <section class="card profile-card">
+        <h2 class="card-title">プロフィール</h2>
+        <div class="avatar-wrapper">🍓</div>
+        <div class="user-name">なな</div>
+        <div class="user-id">ID : nouin1033</div>
+        <div class="profile-btns">
+          <button class="btn">プロフィール編集</button>
+          <button class="btn">設定</button>
+        </div>
+      </section>
+
+      <!-- カレンダー -->
+      <section class="card">
+        <h2 class="card-title">カレンダー</h2>
+        <div class="calendar-grid">
+          <div class="day-name">日</div><div class="day-name">月</div><div class="day-name">火</div>
+          <div class="day-name">水</div><div class="day-name">木</div><div class="day-name">金</div><div class="day-name">土</div>
+          
+          <div class="day-cell"></div><div class="day-cell"></div><div class="day-cell"></div>
+          <div class="day-cell active">1</div><div class="day-cell active">2</div><div class="day-cell active">3</div><div class="day-cell">4</div>
+          <div class="day-cell active">5</div><div class="day-cell active">6</div><div class="day-cell">7</div><div class="day-cell active">8</div>
+          <div class="day-cell active">9</div><div class="day-cell active">10</div><div class="day-cell">11</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 右カラム -->
+    <div class="column">
+      <!-- 最近の投稿 -->
+      <section class="card">
+        <h2 class="card-title">最近の投稿</h2>
+        <div class="posts-grid">
+          <div class="post-item">
+            <div class="post-img">🌳</div>
+            <div class="post-title">昨日の遠足</div>
+            <div class="post-stars">★★★★★</div>
+          </div>
+          <div class="post-item">
+            <div class="post-img">🍱</div>
+            <div class="post-title">料理で食べる</div>
+            <div class="post-stars">★★★★★</div>
+          </div>
+          <div class="post-item">
+            <div class="post-img">🍪</div>
+            <div class="post-title">クッキー作り</div>
+            <div class="post-stars">★★★★★</div>
+          </div>
+          <div class="post-item">
+            <div class="post-img">😴</div>
+            <div class="post-title">お昼寝</div>
+            <div class="post-stars">★★★★★</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 友達 -->
+      <section class="card">
+        <h2 class="card-title">友達</h2>
+        <div class="friends-list">
+          <div class="friend-item">
+            <div class="friend-avatar">👧</div>
+            <div>
+              <div class="friend-info">なな</div>
+              <div class="friend-status">友達・近況</div>
+            </div>
+          </div>
+          <div class="friend-item">
+            <div class="friend-avatar">👩</div>
+            <div>
+              <div class="friend-info">日本さん</div>
+              <div class="friend-status">状態</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ボトムナビゲーション -->
+  <nav class="bottom-nav">
+    <button class="nav-item active">
+      <span>📷</span>
+      <span>ホーム</span>
+    </button>
+    <button class="nav-item">
+      <span>📖</span>
+      <span>日記一覧</span>
+    </button>
+    <button class="nav-item">
+      <span>🍰</span>
+      <span>新しい日記を書く</span>
+    </button>
+  </nav>
+
 </body>
 </html>
