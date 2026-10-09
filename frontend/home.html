@@ -7,24 +7,71 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- 🍫 上部：チョコレート帯＋ロゴ＋マイページ -->
+ <!-- 上部のとろけるチョコレートデザイン（途切れ・ズレを修正したSVG） -->
+  <div class="drip-container">
+    <svg class="drip-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
+      <!-- 影の部分 -->
+      <path fill="#3a1b0e" d="M0,0 L1000,0 L1000,90 Q950,160 900,90 T800,100 T700,170 T600,80 T500,150 T400,90 T300,180 T200,80 T100,160 T0,90 Z"></path>
+      <!-- メインのチョコレート -->
+      <path fill="#4e2a18" d="M0,0 L1000,0 L1000,80 Q950,150 900,80 T800,90 T700,160 T600,70 T500,140 T400,80 T300,170 T200,70 T100,150 T0,80 Z"></path>
+      <!-- ツヤ・ハイライト -->
+      <path fill="rgba(255,255,255,0.15)" d="M0,0 L1000,0 L1000,60 Q950,130 900,60 T800,70 T700,140 T600,50 T500,120 T400,60 T300,150 T200,50 T100,130 T0,60 Z"></path>
+    </svg>
+  </div>
+
 <main>
-    <h1>ホーム</h1>
+
+    <!-- あいさつとキャラ -->
     <div class="avatar" id="avatar"></div>
     <p style="text-align:center" id="hello"></p>
+
+    <!-- 投稿ボタン -->
     <div class="nav">
         <a class="btn" href="post.html">日記・写真を投稿</a>
-        <a class="btn sub" href="mypage.html">マイページ</a>
     </div>
-    <div id="posts"></div>
+
+    <!-- 📅 カレンダー -->
+    <div class="calendar-container">
+        <h2 class="calendar-title">カレンダー</h2>
+        <div id="calendar"></div>
+    </div>
+
 </main>
+
 <script src="app.js"></script>
 <script>
 const user = requireLogin();
 const name = getCurrentName();
 avatar.textContent = getCharacter(user.character).emoji;
 hello.textContent = `${name}さん、こんにちは!`;
-const posts = getPosts(name);
-document.getElementById('posts').innerHTML = posts.length ? posts.map(postHtml).join('') : '<p style="text-align:center">まだ投稿がありません</p>';
+
+// カレンダー生成
+function renderCalendar() {
+  const calendar = document.getElementById('calendar');
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+
+  let html = '';
+
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="calendar-day empty"></div>`;
+  }
+
+  for (let d = 1; d <= lastDate; d++) {
+    html += `<div class="calendar-day">${d}</div>`;
+  }
+
+  calendar.innerHTML = html;
+}
+
+renderCalendar();
 </script>
+
 </body>
 </html>
