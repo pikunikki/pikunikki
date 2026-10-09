@@ -1,0 +1,301 @@
+:root {
+  --bg-pink: #ffb6c1;
+  --card-bg: #fff8f8;
+  --chocolate: #4a2810;
+  --chocolate-light: #6b3e1b;
+  --accent-pink: #ff6b81;
+  --text-main: #4a2810;
+  --text-sub: #7a5c48;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", MeiRyo, sans-serif;
+}
+
+body {
+  background-color: var(--bg-pink);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 70px; /* ナビバーの高さ分確保 */
+}
+
+/* 上部チョコドリップディテール */
+.header-drip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ヘッダー */
+header {
+  padding-top: 35px;
+  text-align: center;
+  position: relative;
+  z-index: 20;
+}
+
+.logo-card {
+  display: inline-block;
+  background: #fff;
+  border: 2px dashed var(--chocolate);
+  border-radius: 12px;
+  padding: 6px 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo-card p {
+  font-size: 0.8rem;
+  color: var(--chocolate);
+}
+
+.logo-card h1 {
+  font-size: 1.6rem;
+  color: var(--chocolate);
+  font-weight: bold;
+}
+
+/* メインコンテンツレイアウト */
+main {
+  max-width: 1000px;
+  width: 90%;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  position: relative;
+  z-index: 20;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 共通カードスタイル */
+.card {
+  background-color: var(--card-bg);
+  border: 2px solid var(--chocolate);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(74, 40, 16, 0.15);
+}
+
+.card-title {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--chocolate);
+  margin-bottom: 15px;
+}
+
+/* プロフィール */
+.profile-card {
+  text-align: center;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  border: 6px solid var(--chocolate);
+  background-color: #ffe6eb;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+
+.user-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.user-id {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin-bottom: 15px;
+}
+
+.profile-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 8px 0;
+  background: #fff;
+  border: 1px solid var(--chocolate);
+  border-radius: 15px;
+  color: var(--chocolate);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #f0f0f0;
+}
+
+/* カレンダー */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.day-name {
+  font-weight: bold;
+  color: var(--text-sub);
+  margin-bottom: 5px;
+}
+
+.day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: #fff0f3;
+}
+
+.day-cell.active::after {
+  content: "★";
+  color: #ffb703;
+  font-size: 0.7rem;
+}
+
+/* 最近の投稿 */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 15px;
+}
+
+.post-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px;
+  border: 1px solid #ffd1dc;
+  text-align: center;
+}
+
+.post-img {
+  width: 100%;
+  height: 90px;
+  background-color: #e2f0d9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 6px;
+}
+
+.post-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-stars {
+  color: #ffb703;
+  font-size: 0.7rem;
+}
+
+/* 友達リスト */
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.friend-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffd1dc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.friend-info {
+  font-size: 0.85rem;
+}
+
+.friend-status {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+}
+
+/* ボトムナビゲーション (チョコレートバーデザイン) */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: var(--chocolate);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  z-index: 100;
+  border-top: 3px solid var(--chocolate-light);
+}
+
+.nav-item {
+  flex: 1;
+  max-width: 200px;
+  height: 100%;
+  background: var(--chocolate);
+  border: none;
+  border-right: 2px solid var(--chocolate-light);
+  border-left: 1px solid #331a0a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+  gap: 2px;
+}
+
+.nav-item.active {
+  background: var(--chocolate-light);
+}
+
+.nav-item:hover {
+  background: #5c3214;
+}
