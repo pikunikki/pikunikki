@@ -1,77 +1,148 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ホーム - pikunikki</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ホーム - pikunikki</title>
+<link rel="stylesheet" href="css/home.css">
 </head>
 <body>
 
-<!-- 🍫 上部：チョコレート帯＋ロゴ＋マイページ -->
- <!-- 上部のとろけるチョコレートデザイン（途切れ・ズレを修正したSVG） -->
-  <div class="drip-container">
-    <svg class="drip-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
-      <!-- 影の部分 -->
-      <path fill="#3a1b0e" d="M0,0 L1000,0 L1000,90 Q950,160 900,90 T800,100 T700,170 T600,80 T500,150 T400,90 T300,180 T200,80 T100,160 T0,90 Z"></path>
-      <!-- メインのチョコレート -->
-      <path fill="#4e2a18" d="M0,0 L1000,0 L1000,80 Q950,150 900,80 T800,90 T700,160 T600,70 T500,140 T400,80 T300,170 T200,70 T100,150 T0,80 Z"></path>
-      <!-- ツヤ・ハイライト -->
-      <path fill="rgba(255,255,255,0.15)" d="M0,0 L1000,0 L1000,60 Q950,130 900,60 T800,70 T700,140 T600,50 T500,120 T400,60 T300,150 T200,50 T100,130 T0,60 Z"></path>
-    </svg>
+<!-- 🍫 上部：茶色の帯＋垂れるチョコ -->
+<div class="home-header">
+  <div class="choco-bar">
+    <div class="header-content">
+      <img src="image/ピク日記ロゴ.png" alt="ピク日記" class="home-logo">
+      <a href="mypage.html" class="mypage-btn">マイページ</a>
+    </div>
   </div>
 
+  <svg class="drips" width="100%" height="124" aria-hidden="true">
+    <defs>
+      <pattern id="drip-tile" width="600" height="124" patternUnits="userSpaceOnUse">
+        <!-- 外側の濃い縁 -->
+        <path transform="translate(0,8)" fill="#3a1b0e" d="M0,14 L42,14 C56,14 62,18 62,30 L62,60 A18,18 0 0 0 98,60 L98,30 C98,18 104,14 118,14 L157,14 C171,14 177,18 177,30 L177,37 A13,13 0 0 0 203,37 L203,30 C203,18 209,14 223,14 L278,14 C292,14 298,18 298,30 L298,90 A22,22 0 0 0 342,90 L342,30 C342,18 348,14 362,14 L405,14 C419,14 425,18 425,30 L425,47 A15,15 0 0 0 455,47 L455,30 C455,18 461,14 475,14 L504,14 C518,14 524,18 524,30 L524,37 A11,11 0 0 0 546,37 L546,30 C546,18 552,14 566,14 L600,14 L600,-2 L0,-2 Z"/>
+        <!-- 中間の色 -->
+        <path transform="translate(0,4)" fill="#4e2a18" d="M0,14 L42,14 C56,14 62,18 62,30 L62,60 A18,18 0 0 0 98,60 L98,30 C98,18 104,14 118,14 L157,14 C171,14 177,18 177,30 L177,37 A13,13 0 0 0 203,37 L203,30 C203,18 209,14 223,14 L278,14 C292,14 298,18 298,30 L298,90 A22,22 0 0 0 342,90 L342,30 C342,18 348,14 362,14 L405,14 C419,14 425,18 425,30 L425,47 A15,15 0 0 0 455,47 L455,30 C455,18 461,14 475,14 L504,14 C518,14 524,18 524,30 L524,37 A11,11 0 0 0 546,37 L546,30 C546,18 552,14 566,14 L600,14 L600,-2 L0,-2 Z"/>
+        <!-- 表面（帯と同じ色） -->
+        <path fill="#694a3a" d="M0,14 L42,14 C56,14 62,18 62,30 L62,60 A18,18 0 0 0 98,60 L98,30 C98,18 104,14 118,14 L157,14 C171,14 177,18 177,30 L177,37 A13,13 0 0 0 203,37 L203,30 C203,18 209,14 223,14 L278,14 C292,14 298,18 298,30 L298,90 A22,22 0 0 0 342,90 L342,30 C342,18 348,14 362,14 L405,14 C419,14 425,18 425,30 L425,47 A15,15 0 0 0 455,47 L455,30 C455,18 461,14 475,14 L504,14 C518,14 524,18 524,30 L524,37 A11,11 0 0 0 546,37 L546,30 C546,18 552,14 566,14 L600,14 L600,-2 L0,-2 Z"/>
+        <!-- つや -->
+        <rect x="66"  y="32" width="4" height="26" rx="2" fill="#fff" opacity="0.18"/>
+        <rect x="302" y="32" width="4" height="56" rx="2" fill="#fff" opacity="0.18"/>
+        <rect x="429" y="32" width="4" height="13" rx="2" fill="#fff" opacity="0.18"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#drip-tile)"/>
+  </svg>
+</div>
 <main>
+  <div class="avatar" id="avatar"></div>
+  <p id="hello"></p>
 
-    <!-- あいさつとキャラ -->
-    <div class="avatar" id="avatar"></div>
-    <p style="text-align:center" id="hello"></p>
+  <div class="nav">
+    <a class="btn" href="post.html">日記・写真を投稿</a>
+  </div>
 
-    <!-- 投稿ボタン -->
-    <div class="nav">
-        <a class="btn" href="post.html">日記・写真を投稿</a>
+  <!-- 📅 カレンダー（月ごと） -->
+  <div class="calendar-container">
+    <div class="calendar-nav">
+      <button type="button" id="prev-month" aria-label="前の月">‹</button>
+      <h2 class="calendar-title" id="calendar-title"></h2>
+      <button type="button" id="next-month" aria-label="次の月">›</button>
     </div>
-
-    <!-- 📅 カレンダー -->
-    <div class="calendar-container">
-        <h2 class="calendar-title">カレンダー</h2>
-        <div id="calendar"></div>
+    <div class="calendar-weekdays">
+      <div class="sun">日</div><div>月</div><div>火</div><div>水</div>
+      <div>木</div><div>金</div><div class="sat">土</div>
     </div>
-
+    <div id="calendar"></div>
+    <div id="day-posts"></div>
+  </div>
 </main>
 
-<script src="app.js"></script>
 <script>
-const user = requireLogin();
-const name = getCurrentName();
-avatar.textContent = getCharacter(user.character).emoji;
-hello.textContent = `${name}さん、こんにちは!`;
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const now = new Date();
+  let viewYear = now.getFullYear();
+  let viewMonth = now.getMonth();
+  const byDate = {};
+  const keyOf = (y, m, d) => `${y}-${m + 1}-${d}`;
 
-// カレンダー生成
-function renderCalendar() {
-  const calendar = document.getElementById('calendar');
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+  function renderCalendar() {
+    $('calendar-title').textContent = `${viewYear}年${viewMonth + 1}月`;
+    const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+    const lastDate = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const isThisMonth = viewYear === now.getFullYear() && viewMonth === now.getMonth();
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const lastDate = new Date(year, month + 1, 0).getDate();
-
-  let html = '';
-
-  for (let i = 0; i < firstDay; i++) {
-    html += `<div class="calendar-day empty"></div>`;
+    let html = '';
+    for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
+    for (let d = 1; d <= lastDate; d++) {
+      let cls = 'calendar-day';
+      if (isThisMonth && d === now.getDate()) cls += ' today';
+      if (byDate[keyOf(viewYear, viewMonth, d)]) cls += ' has-post';
+      html += `<div class="${cls}" data-day="${d}">${d}</div>`;
+    }
+    $('calendar').innerHTML = html;
+    $('day-posts').innerHTML = '';
   }
 
-  for (let d = 1; d <= lastDate; d++) {
-    html += `<div class="calendar-day">${d}</div>`;
+  function showDay(d) {
+    const list = byDate[keyOf(viewYear, viewMonth, d)] || [];
+    const box = $('day-posts');
+    if (!list.length) {
+      box.innerHTML = `<p class="no-post">${viewMonth + 1}月${d}日の投稿はありません</p>`;
+      return;
+    }
+    box.innerHTML = list.map(p => `
+      <div class="post-card">
+        ${p.photo ? `<img src="${p.photo}" alt="">` : ''}
+        <p></p>
+      </div>`).join('');
+    box.querySelectorAll('.post-card p').forEach((el, i) => { el.textContent = list[i].text; });
   }
 
-  calendar.innerHTML = html;
-}
+  function changeMonth(diff) {
+    viewMonth += diff;
+    if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+    if (viewMonth > 11) { viewMonth = 0;  viewYear++; }
+    renderCalendar();
+  }
 
-renderCalendar();
+  // ① まずカレンダーを描く（APIが失敗しても表示される）
+  $('prev-month').addEventListener('click', () => changeMonth(-1));
+  $('next-month').addEventListener('click', () => changeMonth(1));
+  $('calendar').addEventListener('click', e => {
+    const el = e.target.closest('.calendar-day[data-day]');
+    if (el) showDay(Number(el.dataset.day));
+  });
+  renderCalendar();
+
+  // ② ログイン情報と投稿を読み込む
+  (async function load() {
+    try {
+      const meRes = await fetch('/api/me');
+      if (meRes.status === 401) { location.href = 'login.html'; return; } // ← ログイン画面のファイル名に変更
+      if (!meRes.ok) throw new Error('/api/me が ' + meRes.status);
+      const me = await meRes.json();
+
+      const chars = await (await fetch('/api/characters')).json();
+      const ch = chars.find(c => c.id === me.character);
+      $('avatar').textContent = ch ? ch.emoji : '🙂';
+      $('hello').textContent = `${me.username}さん、こんにちは！`;
+
+      const posts = await (await fetch('/api/posts')).json();
+      posts.forEach(p => {
+        const dt = new Date(p.date);
+        const k = keyOf(dt.getFullYear(), dt.getMonth(), dt.getDate());
+        (byDate[k] = byDate[k] || []).push(p);
+      });
+      renderCalendar(); // 投稿の印を反映
+    } catch (e) {
+      $('hello').textContent = '読み込みエラー: ' + e.message;
+      console.error(e);
+    }
+  })();
+})();
 </script>
-
 </body>
 </html>

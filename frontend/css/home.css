@@ -1,42 +1,181 @@
-/* チョコレート垂れ下がりヘッダー (SVG) */
-.drip-container {
-  position: absolute;
-  top: 0px;
-  left: 0;
-  width: 100%;
-  height: 300px;
-  pointer-events: none;
-  z-index: 1;
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #fca5b8;
+  color: #3a1b0e;
+  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
 }
+
+/* ===== 上部：茶色の帯 + 垂れるチョコ ===== */
+.home-header {
+  position: relative;
+}
+
+.choco-bar {
+  background: #694a3a;   /* 垂れの表面と同じ色 */
+}
+
+.header-content {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.home-logo { height: 100px; width: auto; }
+
+.drips {
+  display: block;
+  margin-top: -1px;      /* 帯との隙間を防ぐ */
+}
+
+.home-logo { height: 100px; width: auto; }
 
 .drip-svg {
   display: block;
   width: 100%;
-  height: 100%;
-  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
+  height: 110px;      /* 垂れの長さ */
+  margin-top: -1px;   /* 帯との隙間を防ぐ */
 }
 
-.header-content {
-  position: absolute;
-  top: 20px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-}
-
-.home-logo {
-  height: 60px;
-}
+.home-logo { height: 100px; width: auto; }
 
 .mypage-btn {
-  background: #fff;
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  text-decoration: none;
+  padding: 10px 22px;
+  background: #fff8f0;
   color: #4e2a18;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 15px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s;
+}
+.mypage-btn:hover { transform: scale(1.05); }
+
+/* ===== メイン ===== */
+main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+  text-align: center;
+}
+
+.avatar { font-size: 64px; margin-top: 8px; }
+#hello { font-size: 18px; font-weight: bold; }
+
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #4e2a18;
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* ===== カレンダー ===== */
+.calendar-container {
+  margin-top: 28px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(58, 27, 14, 0.15);
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-title { margin: 0; font-size: 20px; color: #4e2a18; }
+
+.calendar-nav button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #4e2a18;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.calendar-nav button:hover { background: #3a1b0e; }
+
+.calendar-weekdays,
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-weekdays div {
+  font-size: 13px;
+  font-weight: bold;
+  padding: 4px 0;
+}
+.sun { color: #d9534f; }
+.sat { color: #4a7fd1; }
+
+.calendar-day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fdf1e3;
+  font-size: 14px;
+}
+.calendar-day.empty { background: transparent; }
+.calendar-day.today { background: #4e2a18; color: #fff; font-weight: bold; }
+
+/* ===== 投稿がある日の印・日記カード ===== */
+.calendar-day {
+  position: relative;
+  cursor: pointer;
+}
+.calendar-day.empty {
+  cursor: default;
+}
+
+.calendar-day.has-post::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e0679a;
+}
+.calendar-day.today.has-post::after {
+  background: #fff;
+}
+
+#day-posts {
+  margin-top: 16px;
+  text-align: left;
+}
+.post-card {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #fdf1e3;
+  border-radius: 12px;
+}
+.post-card img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.post-card p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.no-post {
+  text-align: center;
+  color: #8a6a58;
 }
