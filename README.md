@@ -1,5 +1,8 @@
 # pikunikki
 
+ピク日記のログイン画面に飛ぶ
+https://pikunikki.github.io/pikunikki/frontend/login.html
+
 pikunikki/
  ├── backend/        ← サーバー側（API）
  │    ├── db/
