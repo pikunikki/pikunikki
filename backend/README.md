@@ -10,7 +10,7 @@ GRANT ALL ON pikunikki.* TO 'pikunikki'@'localhost';
 cd backend
 npm install
 cp .env.example .env   # DB接続情報を編集
-npm run db:init        # テーブル作成 + キャラ初期データ
+npm run db:init        # テーブル作成 + キャラ初期データ(npm start でも自動実行・旧スキーマは自動移行)
 npm start              # http://localhost:3000
 ```
 

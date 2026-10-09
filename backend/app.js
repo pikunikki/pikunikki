@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const { pool, port, SESSION_DAYS } = require('./config');
+const { setupDatabase } = require('./database/setup');
 
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -135,5 +136,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'サーバーエラー' });
 });
 
-if (require.main === module) app.listen(port, () => console.log(`http://localhost:${port}`));
+if (require.main === module) {
+  setupDatabase()
+    .then(() => app.listen(port, () => console.log(`http://localhost:${port}`)))
+    .catch((e) => { console.error(e.message); process.exit(1); });
+}
 module.exports = app;

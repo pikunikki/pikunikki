@@ -16,19 +16,33 @@ const CHARACTERS = [
   { id: 'fox', emoji: '🦊', name: 'きつね' },
 ];
 
-// 同期API呼び出し。通信失敗は例外
+// 同期API呼び出し。通信できなかった場合は status 0 を返す(例外にはしない)
 function api(method, path, body) {
-  const xhr = new XMLHttpRequest();
-  xhr.open(method, path, false);
-  let payload = body;
-  if (body && !(body instanceof FormData)) {
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    payload = JSON.stringify(body);
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, path, false);
+    let payload = body;
+    if (body && !(body instanceof FormData)) {
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      payload = JSON.stringify(body);
+    }
+    xhr.send(payload || null);
+    let data = null;
+    try { data = JSON.parse(xhr.responseText); } catch { /* 本文なし・JSONでない */ }
+    return { status: xhr.status, ok: xhr.status >= 200 && xhr.status < 300, data };
+  } catch {
+    return { status: 0, ok: false, data: null };
   }
-  xhr.send(payload || null);
-  let data = null;
-  try { data = JSON.parse(xhr.responseText); } catch { /* 本文なし */ }
-  return { status: xhr.status, ok: xhr.status >= 200 && xhr.status < 300, data };
+}
+
+// 失敗したレスポンスから、利用者向けのメッセージを作る
+function errorMessage(r, fallback) {
+  if (r.data && r.data.error) return r.data.error;
+  if (r.status === 0 || !r.data) {
+    return 'サーバーに接続できません。backend を起動し、http://localhost:3000/ から開いているか確認してください' +
+      (r.status ? `(HTTP ${r.status})` : '');
+  }
+  return fallback;
 }
 
 // ---- ログイン状態 ----
@@ -59,7 +73,7 @@ async function loginSubmit(event) {
     const email = document.getElementById('login-email').value;
     const password = await sha256(document.getElementById('login-password').value);
     const r = api('POST', '/api/login', { email, password });
-    if (!r.ok) { alert((r.data && r.data.error) || 'ログインに失敗しました'); return; }
+    if (!r.ok) { alert(errorMessage(r, 'ログインに失敗しました')); return; }
   }
   location.href = 'home.html';
 }
@@ -73,7 +87,8 @@ async function signupSubmit(event) {
   const password = await sha256(document.getElementById('signup-password').value);
   if (!DEMO_MODE) {
     const r = api('GET', '/api/users/exists?email=' + encodeURIComponent(email));
-    if (r.ok && r.data.exists) { alert('このメールアドレスは登録済みです'); return; }
+    if (!r.ok) { alert(errorMessage(r, '確認に失敗しました')); return; }
+    if (r.data.exists) { alert('このメールアドレスは登録済みです'); return; }
   }
   sessionStorage.setItem('pending', JSON.stringify({ name: nickname, email, password }));
   location.href = 'character.html';
@@ -93,7 +108,7 @@ function save(key, value) {
   const pending = JSON.parse(sessionStorage.getItem('pending') || '{}');
   const r = api('POST', '/api/register', { nickname: name, email: pending.email, password: u.password, character: u.character });
   if (!r.ok) {
-    alert((r.data && r.data.error) || '登録に失敗しました');
+    alert(errorMessage(r, '登録に失敗しました'));
     location.href = 'signup.html';
     throw new Error('register failed'); // 後続の画面遷移を止める
   }
@@ -135,7 +150,7 @@ function addPost(post) {
   fd.append('text', post.text);
   if (post.photo) fd.append('photo', dataUrlToBlob(post.photo), 'photo.jpg');
   const r = api('POST', '/api/posts', fd);
-  if (!r.ok) throw new Error((r.data && r.data.error) || '投稿に失敗しました'); // post.html が catch して表示
+  if (!r.ok) throw new Error(errorMessage(r, '投稿に失敗しました')); // post.html が catch して表示
 }
 
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
