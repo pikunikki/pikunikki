@@ -1,6 +1,12 @@
 // バックエンド(backend/app.js の API)を呼ぶデータ層。
 // 各HTMLは同期関数として呼んでいるため、同期XHRで実装している(HTML側は無変更で動く)。
 // backend から http://localhost:3000/ で配信して開くこと(Cookie認証・同一オリジン前提)。
+// バックエンド停止中は true: APIを呼ばず localStorage だけで画面遷移を確認できるデモモード。
+// バックエンドに繋ぐときは false にする。
+const DEMO_MODE = true;
+const demoGet = (key, fallback) => { try { return JSON.parse(localStorage.getItem('demo.' + key)) ?? fallback; } catch { return fallback; } };
+const demoSet = (key, value) => localStorage.setItem('demo.' + key, JSON.stringify(value));
+
 const CHARACTERS = [
   { id: 'cat', emoji: '🐱', name: 'ねこ' },
   { id: 'dog', emoji: '🐶', name: 'いぬ' },
@@ -28,6 +34,7 @@ function api(method, path, body) {
 // ---- ログイン状態 ----
 let meCache; // undefined=未取得, null=未ログイン
 function me() {
+  if (DEMO_MODE) return { username: demoGet('name', 'ゲスト'), character: demoGet('character', 'cat') };
   if (meCache === undefined) {
     const r = api('GET', '/api/me');
     meCache = r.ok ? r.data : null;
@@ -82,6 +89,12 @@ function getUsers() {
 // character.html が save('users', users) を呼んだら新規登録APIに送る
 function save(key, value) {
   if (key !== 'users') return;
+  if (DEMO_MODE) { // キャラ選択の結果だけ覚えておく
+    const [name, u] = Object.entries(value)[0];
+    demoSet('name', name);
+    demoSet('character', u.character);
+    return;
+  }
   for (const [username, u] of Object.entries(value)) {
     const r = api('POST', '/api/register', { username, password: u.password, character: u.character });
     if (!r.ok) {
@@ -96,18 +109,19 @@ function save(key, value) {
 // ログイン必須ページで呼ぶ
 function requireLogin() {
   const user = getCurrentUser();
-  if (!user) location.replace('login.html');
+  if (!user && !DEMO_MODE) location.replace('login.html');
   return user;
 }
 
 function logout() {
-  api('POST', '/api/logout');
+  if (!DEMO_MODE) api('POST', '/api/logout');
   meCache = undefined;
   location.href = 'login.html';
 }
 
 // ---- 投稿 ----
 const getPosts = () => {
+  if (DEMO_MODE) return demoGet('posts', []);
   const r = api('GET', '/api/posts');
   return r.ok ? r.data : [];
 };
@@ -120,6 +134,10 @@ function dataUrlToBlob(url) {
 }
 
 function addPost(post) {
+  if (DEMO_MODE) { // post.html が catch するので、容量超過もそのまま例外で伝わる
+    demoSet('posts', [{ text: post.text, photo: post.photo, date: Date.now() }, ...demoGet('posts', [])]);
+    return;
+  }
   const fd = new FormData();
   fd.append('text', post.text);
   if (post.photo) fd.append('photo', dataUrlToBlob(post.photo), 'photo.jpg');
