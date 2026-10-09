@@ -15,8 +15,8 @@
 </main>
 <script src="app.js"></script>
 <script>
-// signup.html は入力内容を渡さないので、無い場合はゲスト名で進む(バックエンド連携時に見直す)
-const pending = JSON.parse(sessionStorage.getItem('pending') || 'null') || { name: 'ゲスト' };
+const pending = JSON.parse(sessionStorage.getItem('pending') || 'null');
+if (!pending) location.replace('signup.html');
 let selected = null;
 const box = document.getElementById('chars');
 CHARACTERS.forEach((c) => {

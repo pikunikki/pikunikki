@@ -18,12 +18,12 @@ npm start              # http://localhost:3000
 | メソッド | パス | 内容 |
 |---|---|---|
 | GET | /api/characters | キャラ一覧 |
-| POST | /api/register | `{username,password,character}` 登録＋ログイン |
-| POST | /api/login | `{username,password}` |
+| GET | /api/users/exists?email= | メール登録済みか(新規登録の重複チェック) |
+| POST | /api/register | `{nickname,email,password,character}` 登録＋ログイン |
+| POST | /api/login | `{email,password}` |
 | POST | /api/logout | |
 | GET | /api/me | 自分の情報＋投稿数(要ログイン) |
 | GET | /api/posts | 自分の投稿一覧(要ログイン) |
 | POST | /api/posts | multipart: `text`(必須), `photo`(任意, 5MBまで) |
 
 `frontend/` を静的配信しているので、`http://localhost:3000/` で開けば同一オリジンでCookieが使えます。
-`GET /api/users/exists?username=` は新規登録画面の重複チェック用です。

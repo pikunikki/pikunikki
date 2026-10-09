@@ -1,9 +1,9 @@
 // バックエンド(backend/app.js の API)を呼ぶデータ層。
-// 各HTMLは同期関数として呼んでいるため、同期XHRで実装している(HTML側は無変更で動く)。
+// 各HTMLは同期関数として呼んでいるため、同期XHRで実装している。
 // backend から http://localhost:3000/ で配信して開くこと(Cookie認証・同一オリジン前提)。
-// バックエンド停止中は true: APIを呼ばず localStorage だけで画面遷移を確認できるデモモード。
-// バックエンドに繋ぐときは false にする。
-const DEMO_MODE = true;
+
+// true: APIを呼ばず localStorage だけで画面遷移を確認できるデモモード(バックエンド停止中用)
+const DEMO_MODE = false;
 const demoGet = (key, fallback) => { try { return JSON.parse(localStorage.getItem('demo.' + key)) ?? fallback; } catch { return fallback; } };
 const demoSet = (key, value) => localStorage.setItem('demo.' + key, JSON.stringify(value));
 
@@ -16,7 +16,7 @@ const CHARACTERS = [
   { id: 'fox', emoji: '🦊', name: 'きつね' },
 ];
 
-// 同期API呼び出し。成功なら {status, data}、通信失敗は例外
+// 同期API呼び出し。通信失敗は例外
 function api(method, path, body) {
   const xhr = new XMLHttpRequest();
   xhr.open(method, path, false);
@@ -46,64 +46,58 @@ const getCurrentName = () => (me() ? me().username : null);
 const setCurrentName = () => { meCache = undefined; }; // ログインはサーバーがCookieで保持済み
 const getCharacter = (id) => CHARACTERS.find((c) => c.id === id);
 
-// ---- パスワードのハッシュ ----
-// 平文をそのまま送らないよう SHA-256 にしてから送る(サーバー側でさらに bcrypt)
+// パスワードは SHA-256 にしてから送る(サーバー側でさらに bcrypt)
 async function sha256(text) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// login.html は「getUsers()[name]; user.password !== await hash(pw)」でパスワード照合している。
-// サーバーは保存済みハッシュを返さないので、照合を hash() の中でサーバーに行わせる:
-// 成功なら LOGIN_OK と同一のオブジェクトを返し、user.password === hash() が成り立つ。
-const LOGIN_OK = { loginOk: true };
-let loginName = '';
-
-async function hash(text) {
-  const h = await sha256(text);
-  if (!location.pathname.endsWith('login.html')) return h;
-  const r = api('POST', '/api/login', { username: loginName, password: h });
-  meCache = undefined;
-  return r.ok ? LOGIN_OK : 'invalid';
+// ---- ログイン画面(login.html のフォームから呼ぶ) ----
+async function loginSubmit(event) {
+  event.preventDefault();
+  if (!DEMO_MODE) {
+    const email = document.getElementById('login-email').value;
+    const password = await sha256(document.getElementById('login-password').value);
+    const r = api('POST', '/api/login', { email, password });
+    if (!r.ok) { alert((r.data && r.data.error) || 'ログインに失敗しました'); return; }
+  }
+  location.href = 'home.html';
 }
 
-// getUsers() は画面ごとに用途が違う
-function getUsers() {
-  const page = location.pathname;
-  if (page.endsWith('login.html')) {
-    // 任意のユーザー名に対し照合用オブジェクトを返す(実際の判定は hash() 内)
-    return new Proxy({}, { get: (_, name) => { loginName = String(name); return { password: LOGIN_OK }; } });
+// ---- 新規登録画面(signup.html のフォームから呼ぶ) ----
+// キャラ選択が終わるまで登録は確定しないので、入力内容は sessionStorage に預けて character.html へ渡す
+async function signupSubmit(event) {
+  event.preventDefault();
+  const nickname = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = await sha256(document.getElementById('signup-password').value);
+  if (!DEMO_MODE) {
+    const r = api('GET', '/api/users/exists?email=' + encodeURIComponent(email));
+    if (r.ok && r.data.exists) { alert('このメールアドレスは登録済みです'); return; }
   }
-  if (page.endsWith('signup.html')) {
-    // 重複チェック: 既に存在すれば truthy
-    return new Proxy({}, {
-      get: (_, name) => {
-        const r = api('GET', '/api/users/exists?username=' + encodeURIComponent(String(name).trim()));
-        return r.ok && r.data.exists ? { exists: true } : undefined;
-      },
-    });
-  }
-  return {}; // character.html: ここに新規ユーザーを書き込んで save('users', …) する
+  sessionStorage.setItem('pending', JSON.stringify({ name: nickname, email, password }));
+  location.href = 'character.html';
 }
 
-// character.html が save('users', users) を呼んだら新規登録APIに送る
+// character.html が users に新規ユーザーを書き込んで save('users', users) を呼ぶ
+function getUsers() { return {}; }
+
 function save(key, value) {
   if (key !== 'users') return;
+  const [name, u] = Object.entries(value)[0];
   if (DEMO_MODE) { // キャラ選択の結果だけ覚えておく
-    const [name, u] = Object.entries(value)[0];
     demoSet('name', name);
     demoSet('character', u.character);
     return;
   }
-  for (const [username, u] of Object.entries(value)) {
-    const r = api('POST', '/api/register', { username, password: u.password, character: u.character });
-    if (!r.ok) {
-      alert((r.data && r.data.error) || '登録に失敗しました');
-      location.href = 'signup.html';
-      throw new Error('register failed'); // 後続の画面遷移を止める
-    }
-    meCache = undefined;
+  const pending = JSON.parse(sessionStorage.getItem('pending') || '{}');
+  const r = api('POST', '/api/register', { nickname: name, email: pending.email, password: u.password, character: u.character });
+  if (!r.ok) {
+    alert((r.data && r.data.error) || '登録に失敗しました');
+    location.href = 'signup.html';
+    throw new Error('register failed'); // 後続の画面遷移を止める
   }
+  meCache = undefined;
 }
 
 // ログイン必須ページで呼ぶ
@@ -128,8 +122,7 @@ const getPosts = () => {
 
 function dataUrlToBlob(url) {
   const [head, b64] = url.split(',');
-  const bin = atob(b64);
-  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
   return new Blob([bytes], { type: head.match(/:(.*?);/)[1] });
 }
 

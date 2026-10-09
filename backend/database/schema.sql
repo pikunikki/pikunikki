@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS characters (
 
 CREATE TABLE IF NOT EXISTS users (
   id            INT AUTO_INCREMENT PRIMARY KEY,
-  username      VARCHAR(50)  NOT NULL UNIQUE,
+  username      VARCHAR(50)  NOT NULL,           -- ニックネーム(表示名)
+  email         VARCHAR(255) NOT NULL UNIQUE,    -- ログインID
   password_hash VARCHAR(100) NOT NULL,
   character_id  VARCHAR(20)  NOT NULL,
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
