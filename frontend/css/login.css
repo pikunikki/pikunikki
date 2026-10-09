@@ -53,7 +53,7 @@ body {
   top: 0px;
   left: 0;
   width: 100%;
-  height: px;
+  height: 300px;
   pointer-events: none;
   z-index: 1;
 }
