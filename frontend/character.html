@@ -22,7 +22,7 @@ const box = document.getElementById('chars');
 CHARACTERS.forEach((c) => {
   const el = document.createElement('div');
   el.className = 'char';
-  el.innerHTML = `${c.emoji}<small>${c.name}</small>`;
+  el.innerHTML = `<img src="${c.image}" alt="${c.name}"><small>${c.name}</small>`;
   el.onclick = () => {
     selected = c.id;
     box.querySelectorAll('.char').forEach((x) => x.classList.remove('selected'));

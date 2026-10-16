@@ -9,12 +9,10 @@ const demoGet = (key, fallback) => { try { return JSON.parse(localStorage.getIte
 const demoSet = (key, value) => localStorage.setItem('demo.' + key, JSON.stringify(value));
 
 const CHARACTERS = [
-  { id: 'cat', emoji: '🐱', name: 'ねこ' },
-  { id: 'dog', emoji: '🐶', name: 'いぬ' },
-  { id: 'rabbit', emoji: '🐰', name: 'うさぎ' },
-  { id: 'bear', emoji: '🐻', name: 'くま' },
-  { id: 'panda', emoji: '🐼', name: 'ぱんだ' },
-  { id: 'fox', emoji: '🦊', name: 'きつね' },
+  { id: 'pink', name: 'ピンク', image: 'image/pink.webp' },
+  { id: 'orange', name: 'オレンジ', image: 'image/orange.webp' },
+  { id: 'purple', name: 'パープル', image: 'image/purple.webp' },
+  { id: 'blue', name: 'ブルー', image: 'image/blue.webp' },
 ];
 
 // 同期API呼び出し。通信失敗は例外
