@@ -59,6 +59,7 @@
   </div>
 </main>
 
+<script src="app.js"></script>
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -120,17 +121,14 @@
   // ② ログイン情報と投稿を読み込む
   (async function load() {
     try {
-      const meRes = await fetch('/api/me');
-      if (meRes.status === 401) { location.href = 'login.html'; return; } // ← ログイン画面のファイル名に変更
-      if (!meRes.ok) throw new Error('/api/me が ' + meRes.status);
-      const me = await meRes.json();
-
-      const chars = await (await fetch('/api/characters')).json();
-      const ch = chars.find(c => c.id === me.character);
+      // app.js 経由で取得(バックエンド無しのデモモードでも動く)
+      const me = window.me();
+      if (!me) { location.href = 'login.html'; return; }
+      const ch = getCharacter(me.character);
       $('avatar').textContent = ch ? ch.emoji : '🙂';
       $('hello').textContent = `${me.username}さん、こんにちは！`;
 
-      const posts = await (await fetch('/api/posts')).json();
+      const posts = getPosts();
       posts.forEach(p => {
         const dt = new Date(p.date);
         const k = keyOf(dt.getFullYear(), dt.getMonth(), dt.getDate());
