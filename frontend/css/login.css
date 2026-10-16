@@ -1,4 +1,16 @@
-/* 全体設定 */
+:root {
+  --choco: #684a3b;
+  --choco-dark: #4e2a18;
+  --choco-deep: #3a1b0e;
+  --cream: #fdf6e2;
+  --gold: #f8dfa1;
+  --pink: #ff6b8b;
+  --background: #fca5b8;
+}
+
+/* ==============================
+   全体設定
+============================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,84 +18,118 @@
 }
 
 body {
-  font-family: 'Kiwi Maru', serif, sans-serif;
-  background-color: #fca5b8; /* イチゴミルク色 */
-  color: #4e2a18;
   min-height: 100vh;
+  padding: 260px 20px 40px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+
   position: relative;
   overflow-x: hidden;
-  padding: 20px;
+
+  font-family: "Kiwi Maru", serif, sans-serif;
+  color: var(--choco-dark);
+  background-color: var(--background);
 }
 
-/* 右上のナビゲーションボタン */
+/* ==============================
+   上部のチョコレートヘッダー
+============================== */
+.home-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 5;
+}
+
+.choco-bar {
+  position: relative;
+  z-index: 2;
+  background: var(--choco);
+}
+
+.header-content {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.choco-drip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 110px;
+  margin-top: -6px;
+  pointer-events: none;
+}
+
+/* ==============================
+   右上のナビゲーション
+============================== */
 .top-nav {
   position: absolute;
-  top: 20px;
+  top: 41px;
   right: 20px;
   z-index: 10;
 }
 
 .nav-signup-btn {
-  background: #fdf6e2;
-  color: #4e2a18;
-  border: 2px solid #4e2a18;
   padding: 8px 18px;
+  border: 2px solid var(--choco-dark);
   border-radius: 20px;
+
+  background: var(--cream);
+  color: var(--choco-dark);
+
   font-family: inherit;
-  font-weight: bold;
   font-size: 0.9rem;
+  font-weight: bold;
+
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
 }
 
 .nav-signup-btn:hover {
-  background: #4e2a18;
-  color: #f8dfa1;
+  background: var(--choco-dark);
+  color: var(--gold);
   transform: translateY(-2px);
 }
 
-/* チョコレート垂れ下がりヘッダー (SVG) */
-.drip-container {
-  position: absolute;
-  top: 0px;
-  left: 0;
-  width: 100%;
-  height: 300px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.drip-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
-}
-
-/* ログイン画面のメイン領域 */
+/* ==============================
+   ログイン画面のメイン領域
+============================== */
 .login-container {
   position: relative;
   z-index: 2;
+
   width: 100%;
   max-width: 400px;
+  flex-shrink: 0;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
 }
 
-/* ロゴ (チョコプレート風) */
+/* ==============================
+   ロゴ：チョコプレート風
+============================== */
 .logo-plate {
-  background: linear-gradient(135deg, #f8dfa1 0%, #d4a359 100%);
-  padding: 8px;
-  border-radius: 16px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.8);
   margin-bottom: 25px;
+  padding: 8px;
+
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--gold) 0%, #d4a359 100%);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+
   transform: rotate(-2deg);
   transition: transform 0.3s ease;
 }
@@ -93,46 +139,80 @@ body {
 }
 
 .logo-inner {
+  padding: 12px 28px;
   border: 2px dashed #6d421e;
   border-radius: 10px;
-  padding: 12px 28px;
+
   text-align: center;
-  background: #fdf6e2;
+  background: var(--cream);
 }
 
 .logo-sub {
-  font-size: 0.75rem;
   color: #8c532b;
-  letter-spacing: 2px;
+  font-size: 0.75rem;
   font-weight: bold;
+  letter-spacing: 2px;
 }
 
 .logo-title {
-  font-size: 2.2rem;
-  color: #4e2a18;
-  text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(78, 42, 24, 0.2);
   margin: 2px 0;
+  color: var(--choco-dark);
+  font-size: 2.2rem;
+  text-shadow:
+    2px 2px 0 #fff,
+    4px 4px 0 rgba(78, 42, 24, 0.2);
 }
 
 .logo-deco {
   font-size: 0.8rem;
 }
 
-/* 板チョコ風カード */
+/* ==============================
+   板チョコ風カード
+============================== */
 .choco-card {
-  background: #4e2a18;
-  border-radius: 20px;
-  padding: 30px 25px;
+  position: relative;
   width: 100%;
-  box-shadow: 
+  padding: 30px 25px;
+
+  border-radius: 20px;
+  background: var(--choco-dark);
+  color: var(--cream);
+
+  box-shadow:
     0 15px 25px rgba(0, 0, 0, 0.3),
     inset 2px 2px 4px rgba(255, 255, 255, 0.2),
     inset -4px -4px 6px rgba(0, 0, 0, 0.4);
-  position: relative;
-  color: #fdf6e2;
 }
 
-/* フォーム切り替え制御 */
+/* ==============================
+   板チョコの背景模様
+============================== */
+.choco-grid {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  bottom: 15px;
+  left: 15px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 15px;
+
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+.choco-piece {
+  border: 3px solid #fff;
+  border-radius: 8px;
+  box-shadow: inset 2px 2px 4px #000;
+}
+
+/* ==============================
+   フォーム切り替え
+============================== */
 .form-section {
   display: none;
   opacity: 0;
@@ -144,115 +224,126 @@ body {
   opacity: 1;
 }
 
-/* 板チョコのブロック背景模様 */
-.choco-grid {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  right: 15px;
-  bottom: 15px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 15px;
-  pointer-events: none;
-  opacity: 0.15;
-}
-
-.choco-piece {
-  border: 3px solid #fff;
-  border-radius: 8px;
-  box-shadow: inset 2px 2px 4px #000;
-}
-
-/* タイトル */
+/* ==============================
+   フォームタイトル
+============================== */
 .card-title {
-  text-align: center;
-  font-size: 1.3rem;
   margin-bottom: 20px;
-  color: #f8dfa1;
+  color: var(--gold);
+
+  font-size: 1.3rem;
+  text-align: center;
   letter-spacing: 1px;
 }
 
-/* フォームレイアウト */
+/* ==============================
+   入力フォーム
+============================== */
 .login-form {
   position: relative;
   z-index: 3;
+
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  width: 100%;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  width: 100%;
 }
 
 .input-group label {
-  font-size: 0.85rem;
   color: #e2c290;
+  font-size: 0.85rem;
 }
 
 .input-group input {
+  width: 100%;
+  min-width: 0;
   padding: 12px 15px;
+
+  border: 2px solid var(--choco-deep);
   border-radius: 10px;
-  border: 2px solid #3a1b0e;
+
   background-color: #fff5f7;
+  color: var(--choco-dark);
+
   font-family: inherit;
   font-size: 0.95rem;
-  color: #4e2a18;
+
   outline: none;
   transition: all 0.2s ease;
 }
 
 .input-group input:focus {
-  border-color: #ff6b8b;
+  border-color: var(--pink);
+  background-color: #fff;
   box-shadow: 0 0 8px rgba(255, 107, 139, 0.5);
-  background-color: #ffffff;
 }
 
-/* ボタン */
+/* ==============================
+   送信ボタン
+============================== */
 .submit-btn {
   margin-top: 10px;
   padding: 12px;
+
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #ff6b8b 0%, #d83a56 100%);
-  color: white;
+
+  background: linear-gradient(135deg, var(--pink) 0%, #d83a56 100%);
+  color: #fff;
+
   font-family: inherit;
   font-size: 1rem;
   font-weight: bold;
+
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.4);
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+
   transition: all 0.2s ease;
 }
 
 .submit-btn.signup-theme {
-  background: linear-gradient(135deg, #f8dfa1 0%, #d4a359 100%);
-  color: #4e2a18;
+  background: linear-gradient(135deg, var(--gold) 0%, #d4a359 100%);
+  color: var(--choco-dark);
 }
 
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.4);
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 .submit-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* フッター */
+/* ==============================
+   カード下部のリンク
+============================== */
 .card-footer {
-  margin-top: 20px;
+  position: relative;
+  z-index: 3;
+
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+
+  margin-top: 20px;
   font-size: 0.75rem;
-  position: relative;
-  z-index: 3;
 }
 
 .card-footer a {
@@ -262,10 +353,49 @@ body {
 }
 
 .card-footer a:hover {
-  color: #ffffff;
+  color: #fff;
   text-decoration: underline;
 }
 
 .card-footer span {
   color: #8c532b;
+}
+
+/* ==============================
+   スマートフォン対応
+============================== */
+@media (max-width: 600px) {
+  body {
+    padding: 230px 16px 30px;
+  }
+
+  .header-content {
+    height: 100px;
+    padding: 0 16px;
+  }
+
+  .home-logo {
+    height: 80px;
+  }
+
+  .top-nav {
+    top: 31px;
+    right: 16px;
+  }
+
+  .login-container {
+    max-width: 400px;
+  }
+
+  .logo-inner {
+    padding: 12px 22px;
+  }
+
+  .logo-title {
+    font-size: 2rem;
+  }
+
+  .choco-card {
+    padding: 25px 20px;
+  }
 }

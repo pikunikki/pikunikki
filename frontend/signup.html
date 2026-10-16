@@ -15,17 +15,77 @@
 </head>
 <body>
 
-    <!-- 上部のとろけるチョコレートデザイン（途切れ・ズレを修正したSVG） -->
-  <div class="drip-container">
-    <svg class="drip-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
-      <!-- 影の部分 -->
-      <path fill="#3a1b0e" d="M0,0 L1000,0 L1000,90 Q950,160 900,90 T800,100 T700,170 T600,80 T500,150 T400,90 T300,180 T200,80 T100,160 T0,90 Z"></path>
-      <!-- メインのチョコレート -->
-      <path fill="#4e2a18" d="M0,0 L1000,0 L1000,80 Q950,150 900,80 T800,90 T700,160 T600,70 T500,140 T400,80 T300,170 T200,70 T100,150 T0,80 Z"></path>
-      <!-- ツヤ・ハイライト -->
-      <path fill="rgba(255,255,255,0.15)" d="M0,0 L1000,0 L1000,60 Q950,130 900,60 T800,70 T700,140 T600,50 T500,120 T400,60 T300,150 T200,50 T100,130 T0,60 Z"></path>
-    </svg>
+<!-- 🍫 上部：茶色の帯＋垂れるチョコ -->
+<div class="home-header">
+  <div class="choco-bar">
+    <div class="header-content"></div>
   </div>
+
+  <svg
+    class="choco-drip"
+    viewBox="0 0 1200 160"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="chocoBody" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="160">
+        <stop offset="0"    stop-color="#684a3b"/>
+        <stop offset="0.45" stop-color="#5a3a2a"/>
+        <stop offset="1"    stop-color="#3a1b0e"/>
+      </linearGradient>
+      <filter id="soft" x="-10%" y="-50%" width="120%" height="200%">
+        <feGaussianBlur stdDeviation="1.5"/>
+      </filter>
+      <filter id="shadow" x="-5%" y="0%" width="110%" height="140%">
+        <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#3a1b0e" flood-opacity="0.35"/>
+      </filter>
+    </defs>
+
+    <!-- 本体 -->
+    <g filter="url(#shadow)">
+      <path fill="url(#chocoBody)" d="
+        M0,0 L1200,0 L1200,40
+        C1170,50 1140,46 1115,40
+        C1085,32 1070,45 1060,70
+        C1052,95 1018,95 1010,70
+        C1000,45 980,32 940,38
+        C900,44 875,70 860,100
+        C850,125 810,125 800,100
+        C790,70 770,44 730,38
+        C690,32 665,44 650,68
+        C638,92 612,92 600,68
+        C580,44 540,32 500,38
+        C460,44 435,66 420,92
+        C408,115 372,115 360,92
+        C348,66 320,44 280,40
+        C240,36 205,52 180,78
+        C165,95 135,95 120,78
+        C100,56 60,48 0,60
+        Z"/>
+    </g>
+    <!-- つや：縁の少し内側をなぞる細い光 -->
+    <path d="M1200,34 C1170,44 1140,40 1115,34
+            C1085,26 1070,39 1060,64
+            C1052,86 1018,86 1010,64
+            C1000,39 980,26 940,32
+            C900,38 875,64 860,94
+            C850,116 810,116 800,94
+            C790,64 770,38 730,32
+            C690,26 665,38 650,62
+            C638,84 612,84 600,62
+            C580,38 540,26 500,32
+            C460,38 435,60 420,86
+            C408,106 372,106 360,86
+            C348,60 320,38 280,34
+            C240,30 205,46 180,72
+            C165,86 135,86 120,72
+            C100,50 60,42 0,54"
+          fill="none" stroke="#fff" stroke-opacity="0.22"
+          stroke-width="2" stroke-linecap="round" filter="url(#soft)"
+          vector-effect="non-scaling-stroke"/>
+  </svg>
+ 
+</div>
 
   <header class="top-nav">
     <button
