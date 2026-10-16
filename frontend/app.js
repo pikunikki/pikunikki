@@ -3,7 +3,8 @@
 // backend から http://localhost:3000/ で配信して開くこと(Cookie認証・同一オリジン前提)。
 
 // true: APIを呼ばず localStorage だけで画面遷移を確認できるデモモード(バックエンド停止中用)
-const DEMO_MODE = false;
+// GitHub Pages(静的配信のみでAPIが無い)で開いたときは自動でデモモードになる
+const DEMO_MODE = location.hostname.endsWith('github.io');
 const demoGet = (key, fallback) => { try { return JSON.parse(localStorage.getItem('demo.' + key)) ?? fallback; } catch { return fallback; } };
 const demoSet = (key, value) => localStorage.setItem('demo.' + key, JSON.stringify(value));
 
