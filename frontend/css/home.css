@@ -10,37 +10,39 @@ body {
 /* ===== 上部：茶色の帯 + 垂れるチョコ ===== */
 .home-header {
   position: relative;
-}
-
-.choco-bar {
-  background: #694a3a;   /* 垂れの表面と同じ色 */
+  z-index: 10;
 }
 
 .header-content {
-  height: 150px;
+  height: 96px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
 }
 
-.home-logo { height: 100px; width: auto; }
+.home-logo { height: 80px; width: auto; }
 
+.choco-drip {
+  position: absolute;
+  top: 100%;
+  margin-top: -1px;      /* 帯との隙間を防ぐ */
+  left: 0;
+  width: 100%;
+  height: 150px;
+  pointer-events: none;  /* 下のボタンを押せるように */
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.25));
+}
+/* 帯の色は、波の一番上の面（#4e2a18 に白15%を重ねた色）と同じにする */
+.choco-bar {
+  background: #684a3b;
+}
 .drips {
   display: block;
   margin-top: -1px;      /* 帯との隙間を防ぐ */
 }
 
-.home-logo { height: 100px; width: auto; }
 
-.drip-svg {
-  display: block;
-  width: 100%;
-  height: 110px;      /* 垂れの長さ */
-  margin-top: -1px;   /* 帯との隙間を防ぐ */
-}
-
-.home-logo { height: 100px; width: auto; }
 
 .mypage-btn {
   padding: 10px 22px;
@@ -59,7 +61,7 @@ body {
 main {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 16px 40px;
+  padding: 60px 16px 40px;
   text-align: center;
 }
 
