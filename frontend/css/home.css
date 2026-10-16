@@ -83,6 +83,7 @@ main {
 }
 
 .avatar { margin-top: 8px; font-size: 64px; }
+.avatar img { height: 160px; }
 #hello  { font-size: 18px; font-weight: bold; }
 
 /* =========================================

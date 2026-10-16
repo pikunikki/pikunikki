@@ -1,8 +1,6 @@
 INSERT INTO characters (id, emoji, name) VALUES
-  ('cat', '🐱', 'ねこ'),
-  ('dog', '🐶', 'いぬ'),
-  ('rabbit', '🐰', 'うさぎ'),
-  ('bear', '🐻', 'くま'),
-  ('panda', '🐼', 'ぱんだ'),
-  ('fox', '🦊', 'きつね')
+  ('pink', '🎀', 'ピンク'),
+  ('orange', '🍊', 'オレンジ'),
+  ('purple', '🔮', 'パープル'),
+  ('blue', '💎', 'ブルー')
 ON DUPLICATE KEY UPDATE emoji = VALUES(emoji), name = VALUES(name);

@@ -227,7 +227,8 @@
       const me = window.me();
       if (!me) { location.href = 'login.html'; return; }
       const ch = getCharacter(me.character);
-      $('avatar').textContent = ch ? ch.emoji : '🙂';
+      if (ch) $('avatar').innerHTML = `<img src="${ch.image}" alt="${ch.name}">`;
+      else $('avatar').textContent = '🙂';
       $('hello').textContent = `${me.username}さん、こんにちは！`;
 
       const posts = getPosts();
