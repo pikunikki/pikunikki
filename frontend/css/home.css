@@ -1,94 +1,249 @@
+/* =========================================
+   ピク日記 ホーム画面
+   ========================================= */
+
+/* ===== 色の設定(ここを変えると全体の色が変わる) ===== */
+:root {
+  --choco:       #684a3b;   /* 帯の色(SVGの上端の色と同じにする) */
+  --choco-dark:  #4e2a18;
+  --choco-deep:  #3a1b0e;
+  --pink:        #e0679a;
+  --pink-light:  #ff9cc2;
+  --pink-shadow: #b84c7a;
+  --cream:       #fdf1e3;
+  --milk:        #ffe9d2;   /* 茶色の上に置く文字の色 */
+}
+
+/* ===== 基本 ===== */
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
   background: #fca5b8;
-  color: #3a1b0e;
+  color: var(--choco-deep);
   font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
 }
 
-/* ===== 上部：茶色の帯 + 垂れるチョコ ===== */
+/* =========================================
+   ヘッダー(茶色の帯 + 垂れるチョコ)
+   ========================================= */
 .home-header {
   position: relative;
   z-index: 10;
 }
 
-/* 帯の色は、波の一番上の面（#4e2a18 に白15%を重ねた色）と同じにする */
 .choco-bar {
   position: relative;
-  z-index: 2;
-  background: #684a3b;
+  z-index: 2;                 /* ドリップの上に重ねてつなぎ目を隠す */
+  background: var(--choco);
 }
 
 .header-content {
-  height: 96px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
 }
 
-.home-logo { height: 80px; width: auto; }
+.home-logo {
+  height: 100px;
+  width: auto;
+}
 
 .choco-drip {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  height: 150px;
-  pointer-events: none;  /* 下のボタンを押せるように */
-  filter: none;
+  height: 110px;
+  margin-top: -6px;           /* 帯に食い込ませて隙間を消す */
+  pointer-events: none;       /* 下のものを押せるように */
 }
-.drips {
-  display: block;
-  margin-top: -1px;      /* 帯との隙間を防ぐ */
-}
-
-
 
 .mypage-btn {
   padding: 10px 22px;
   background: #fff8f0;
-  color: #4e2a18;
+  color: var(--choco-dark);
+  border: 3px solid #ffb3cf;
   border-radius: 999px;
-  font-weight: bold;
   font-size: 15px;
+  font-weight: bold;
   text-decoration: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 0 var(--pink), 0 5px 8px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s;
 }
 .mypage-btn:hover { transform: scale(1.05); }
 
-/* ===== メイン ===== */
+/* =========================================
+   メイン
+   ========================================= */
 main {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 60px 16px 40px;
-  text-align: center;
+  padding: 100px 12px 180px;
 }
 
-.avatar { font-size: 64px; margin-top: 8px; }
-#hello { font-size: 18px; font-weight: bold; }
+.avatar { margin-top: 8px; font-size: 64px; }
+#hello  { font-size: 18px; font-weight: bold; }
 
-.btn {
-  display: inline-block;
-  padding: 12px 28px;
-  background: #4e2a18;
-  color: #fff;
-  border-radius: 999px;
+/* =========================================
+   右下の丸い投稿ボタン(タイマー付き)
+   ========================================= */
+.nav {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 30;
+}
+
+.post-circle {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  display: block;
+  border: 6px solid var(--choco-dark);              /* こげ茶のふち */
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8fbb, #d63b78 80%);   /* イチゴチョコ */
   text-decoration: none;
-  font-weight: bold;
+  box-shadow:
+    inset 0 3px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -6px 10px rgba(120, 20, 60, 0.4),
+    0 6px 0 var(--choco-deep),
+    0 12px 18px rgba(58, 27, 14, 0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.post-circle:hover  { transform: scale(1.05); }
+.post-circle:active {
+  transform: translateY(5px);
+  box-shadow:
+    inset 0 3px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -6px 10px rgba(120, 20, 60, 0.4),
+    0 1px 0 var(--choco-deep),
+    0 4px 8px rgba(58, 27, 14, 0.4);
 }
 
-/* ===== カレンダー ===== */
-.calendar-container {
-  margin-top: 28px;
-  padding: 16px;
+/* くぼみの輪(板チョコの型押し) */
+.choco-groove {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 3px 4px rgba(120, 20, 60, 0.45),
+    0 2px 2px rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+/* 垂れるチョコ */
+.berry-drip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* プラス(型押しのチョコ) */
+.post-plus {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 52px;
+  height: 52px;
+  transform: translate(-50%, -50%);
+}
+.post-plus::before,
+.post-plus::after {
+  content: "";
+  position: absolute;
+  background: linear-gradient(180deg, #fff, #ffd6e6);
+  border-radius: 5px;
+  box-shadow: 0 2px 0 #a82f64, 0 4px 6px rgba(120, 20, 60, 0.45);
+}
+.post-plus::before { left: 0; right: 0; top: 50%; height: 11px; transform: translateY(-50%); }
+.post-plus::after  { top: 0; bottom: 0; left: 50%; width: 11px; transform: translateX(-50%); }
+
+/* ツヤの反射(茶色の部分に) */
+.choco-shine {
+  position: absolute;
+  top: 9%;
+  left: 17%;
+  width: 36%;
+  height: 11%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+  transform: rotate(-25deg);
+  filter: blur(1px);
+  pointer-events: none;
+}
+.post-plus::before,
+.post-plus::after {
+  content: "";
+  position: absolute;
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(58, 27, 14, 0.15);
+  border-radius: 5px;
+  box-shadow: 0 2px 0 var(--pink-shadow), 0 4px 6px rgba(150, 30, 80, 0.4);
+}
+.post-plus::before { left: 0; right: 0; top: 50%; height: 10px; transform: translateY(-50%); }
+.post-plus::after  { top: 0; bottom: 0; left: 50%; width: 10px; transform: translateX(-50%); }
+
+/* まわりのリング */
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);  /* 12時の位置から始める */
+}
+.ring circle { fill: none; stroke-width: 6; }
+.ring-bg { stroke: rgba(255, 255, 255, 0.35); }
+.ring-fg {
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-dasharray: 339.29;   /* 2π × 54 */
+  stroke-dashoffset: 0;
 }
 
+.post-label {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(184, 76, 122, 0.6);
+}
+/* タイマー(小さく下に) */
+.post-timer {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--pink-shadow);
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================
+   カレンダー(板チョコ風)
+   ========================================= */
+#calendar { --cell-ratio: 3 / 4; } 
+.calendar-container {
+  width: 100%;
+  margin-top: 28px;
+  padding: 24px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #6a3f2a, var(--choco-dark) 55%, var(--choco-deep));
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.25),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35),
+    0 6px 0 var(--choco-deep),
+    0 12px 16px rgba(58, 27, 14, 0.35);
+}
+
+/* --- 月の切り替え --- */
 .calendar-nav {
   display: flex;
   align-items: center;
@@ -96,90 +251,213 @@ main {
   margin-bottom: 12px;
 }
 
-.calendar-title { margin: 0; font-size: 20px; color: #4e2a18; }
+.calendar-title {
+  margin: 0;
+  color: var(--milk);
+  font-size: 28px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
 
 .calendar-nav button {
-  width: 36px;
-  height: 36px;
+  width: 68px;
+  height: 68px;
+  padding: 0 0 8px;           /* 大きい矢印は下に寄るので、少し持ち上げる */
   border: none;
   border-radius: 50%;
-  background: #4e2a18;
-  color: #fff;
-  font-size: 20px;
+  background: linear-gradient(180deg, #fff8f0, #f3dcc3);
+  color: var(--choco-dark);
+  font-size: 52px;
+  font-weight: bold;
   line-height: 1;
   cursor: pointer;
+  box-shadow:
+    inset 0 3px 3px rgba(255, 255, 255, 0.8),
+    inset 0 -3px 4px rgba(184, 120, 70, 0.25),
+    0 4px 0 #b88a66,
+    0 8px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s, box-shadow 0.1s;
 }
-.calendar-nav button:hover { background: #3a1b0e; }
+.calendar-nav button:hover {
+  background: linear-gradient(180deg, #fff, #f8e6d2);
+}
+.calendar-nav button:active {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 3px 3px rgba(255, 255, 255, 0.6),
+    inset 0 -2px 3px rgba(184, 120, 70, 0.25),
+    0 0 0 #b88a66,
+    0 3px 5px rgba(0, 0, 0, 0.35);
+}
 
+/* --- 曜日と日付の並び(7列) --- */
 .calendar-weekdays,
 #calendar {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));   /* 中身で列が広がらない */
+  gap: 6px;
 }
 
+/* --- 曜日 --- */
 .calendar-weekdays div {
-  font-size: 13px;
+  margin-bottom: 4px;
+  padding: 10px 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--milk);
+  font-size: 24px;
   font-weight: bold;
-  padding: 4px 0;
+  text-align: center;
 }
-.sun { color: #d9534f; }
-.sat { color: #4a7fd1; }
+.calendar-weekdays .sun { color: var(--pink-light); }
+.calendar-weekdays .sat { color: #9cc4ff; }
 
+/* --- 日付のマス(板チョコの一かけら) --- */
 .calendar-day {
-  aspect-ratio: 1 / 1;
+  position: relative;
+  aspect-ratio: var(--cell-ratio);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  background: #fdf1e3;
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #7a4a33, #5a3220);
+  color: #f6dfc8;
   font-size: 14px;
-}
-.calendar-day.empty { background: transparent; }
-.calendar-day.today { background: #4e2a18; color: #fff; font-weight: bold; }
-
-/* ===== 投稿がある日の印・日記カード ===== */
-.calendar-day {
-  position: relative;
+  font-weight: bold;
   cursor: pointer;
+  transition: filter 0.15s;
 }
+.calendar-day:hover { filter: brightness(1.15); }
+
 .calendar-day.empty {
+  background: transparent;
   cursor: default;
 }
+.calendar-day.empty:hover { filter: none; }
 
+/* かどの立体感(写真の上にも重なる) */
+.calendar-day::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 2px 2px 3px rgba(255, 255, 255, 0.28),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.45);
+}
+.calendar-day.empty::before { display: none; }
+
+/* 日付の数字 */
+.day-num {
+  position: relative;
+  z-index: 3;                 /* かどの影より手前に */
+}
+
+/* 今日:ストロベリーチョコ */
+.calendar-day.today {
+  background: linear-gradient(145deg, var(--pink-light), var(--pink));
+  color: #fff;
+}
+
+/* 投稿がある日:ピンクの点 */
 .calendar-day.has-post::after {
   content: "";
   position: absolute;
   bottom: 6px;
+  z-index: 3;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #e0679a;
+  background: #ffb3cf;
 }
-.calendar-day.today.has-post::after {
-  background: #fff;
+.calendar-day.today.has-post::after { background: #fff; }
+
+/* 写真がある日:写真をマスいっぱいに */
+
+.calendar-day {
+  aspect-ratio: var(--cell-ratio);
+  min-width: 0;
 }
 
+.calendar-day img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   
+}
+.calendar-day.has-photo::after { display: none; }   /* 写真があるときは点は不要 */
+.calendar-day.has-photo .day-num {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--choco-dark);
+  font-size: 12px;
+  font-weight: bold;
+}
+.calendar-container {
+  width: 100%;
+  max-width: none;                /* 幅の制限なし */
+  padding: 16px;
+}
+.calendar-day.today.has-photo {
+  outline: 3px solid var(--pink-light);
+  outline-offset: -3px;
+}
+.calendar-day.today.has-photo .day-num {
+  background: var(--pink);
+  color: #fff;
+}
+
+/* --- 選んだ日の日記カード --- */
 #day-posts {
   margin-top: 16px;
   text-align: left;
 }
 .post-card {
-  padding: 12px;
   margin-bottom: 10px;
-  background: #fdf1e3;
+  padding: 12px;
   border-radius: 12px;
+  background: var(--cream);
 }
 .post-card img {
   max-width: 100%;
-  border-radius: 8px;
   margin-bottom: 8px;
+  border-radius: 8px;
 }
 .post-card p {
   margin: 0;
   white-space: pre-wrap;
 }
 .no-post {
+  color: var(--milk);
   text-align: center;
-  color: #8a6a58;
+}
+
+/* =========================================
+   スマホ(狭い画面)
+   ========================================= */
+@media (max-width: 600px) {
+  .header-content { height: 100px; padding: 0 16px; }
+  .home-logo      { height: 80px; }
+
+  .calendar-container { padding: 12px; }
+  .calendar-title     { font-size: 22px; }
+  .calendar-nav button {
+    width: 52px;
+    height: 52px;
+    padding-bottom: 6px;
+    font-size: 38px;
+  }
+  .calendar-weekdays div { padding: 6px 0; font-size: 16px; }
+
+  .post-circle { width: 110px; height: 110px; }
+  .post-label  { font-size: 12px; }
+  .post-timer  { font-size: 12px; }
 }

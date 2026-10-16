@@ -82,8 +82,31 @@
   <p id="hello"></p>
 
   <div class="nav">
-    <a class="btn" href="post.html">日記・写真を投稿</a>
-  </div>
+  <a class="post-circle" href="post.html" aria-label="日記・写真を投稿">
+    <span class="choco-groove"></span>
+    <!-- 上からとろっと垂れるチョコ -->
+    <svg class="berry-drip" viewBox="0 0 100 100" aria-hidden="true">
+      <defs>
+        <linearGradient id="btnDrip" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6a3f2a"/>
+          <stop offset="1" stop-color="#3a1b0e"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#btnDrip)" d="M0,0 H100 V30
+               C97,30 95,48 88,48 C81,48 80,32 73,32
+               C66,32 64,56 56,56 C48,56 47,34 40,34
+               C33,34 31,46 24,46 C17,46 15,30 8,30
+               C4,30 2,32 0,32 Z"/>
+    </svg>
+    <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="ring-bg" cx="60" cy="60" r="54"/>
+      <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="54"/>
+    </svg>
+    <span class="post-plus"></span>
+    <span class="choco-shine"></span>
+    <span class="post-timer" id="post-timer">--:--:--</span>
+  </a>
+</div>
 
   <!-- 📅 カレンダー（月ごと） -->
   <div class="calendar-container">
@@ -119,10 +142,17 @@
     let html = '';
     for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
     for (let d = 1; d <= lastDate; d++) {
+      const list = byDate[keyOf(viewYear, viewMonth, d)];
+      const withPhoto = list && list.find(p => p.photo);   // その日の最新の写真つき投稿
+
       let cls = 'calendar-day';
       if (isThisMonth && d === now.getDate()) cls += ' today';
-      if (byDate[keyOf(viewYear, viewMonth, d)]) cls += ' has-post';
-      html += `<div class="${cls}" data-day="${d}">${d}</div>`;
+      if (list) cls += ' has-post';
+      if (withPhoto) cls += ' has-photo';
+
+      html += `<div class="${cls}" data-day="${d}">`
+            + (withPhoto ? `<img src="${withPhoto.photo}" alt="" loading="lazy">` : '')
+            + `<span class="day-num">${d}</span></div>`;
     }
     $('calendar').innerHTML = html;
     $('day-posts').innerHTML = '';
@@ -159,6 +189,36 @@
   });
   renderCalendar();
 
+    // ⏱ 投稿ボタンのタイマー(今日の投稿まで、あと何時間か)
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const CIRC = 2 * Math.PI * 54;
+
+  function tickTimer() {
+    const timerEl = $('post-timer');
+    const ring = $('ring-fg');
+    const t = new Date();
+
+    // 今日すでに投稿していたら「投稿済み」
+    if (byDate[keyOf(t.getFullYear(), t.getMonth(), t.getDate())]) {
+      timerEl.textContent = '投稿済み';
+      ring.style.strokeDashoffset = 0;
+      return;
+    }
+
+    // まだなら、今日の終わり(次の0:00)までのカウントダウン
+    const end = new Date();
+    end.setHours(24, 0, 0, 0);
+    const left = Math.max(0, end - t);
+    const h = String(Math.floor(left / 3600000)).padStart(2, '0');
+    const m = String(Math.floor(left / 60000) % 60).padStart(2, '0');
+    const s = String(Math.floor(left / 1000) % 60).padStart(2, '0');
+    timerEl.textContent = `${h}:${m}:${s}`;
+    ring.style.strokeDashoffset = CIRC * (1 - left / DAY_MS);
+  }
+  tickTimer();
+  setInterval(tickTimer, 1000);
+  setInterval(tickTimer, 1000);
+
   // ② ログイン情報と投稿を読み込む
   (async function load() {
     try {
@@ -179,6 +239,7 @@
         (byDate[k] = byDate[k] || []).push(p);
       });
       renderCalendar(); // 投稿の印を反映
+      tickTimer(); // 投稿済みかどうかを反映
     } catch (e) {
       $('hello').textContent = '読み込みエラー: ' + e.message;
       console.error(e);
