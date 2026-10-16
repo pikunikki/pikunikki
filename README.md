@@ -24,6 +24,8 @@ GitHub Pages(上のURL)にはバックエンドが無いため、デモモード
 ### 初回セットアップ
 
 **1. 必要なものを確認する**(Node.js 18以上 / MySQL 8 または MariaDB 10.5以上)
+
+PowerShellかコマンドプロンプトで
 ```sh
 node -v
 npm -v
@@ -32,15 +34,24 @@ mysql --version
 入っていなければ https://nodejs.org と https://dev.mysql.com/downloads/mysql/ からインストールする。
 
 **2. DBとユーザーを作る**
+
+ターミナルで以下を実行
 ```sh
 mysql -u root -p
 ```
+
+mysql> というプロンプトが出たらログイン成功
 ```sql
 CREATE DATABASE pikunikki CHARACTER SET utf8mb4;
 CREATE USER 'pikunikki'@'localhost' IDENTIFIED BY 'change_me';
 GRANT ALL ON pikunikki.* TO 'pikunikki'@'localhost';
 ```
 `change_me` は好きなパスワードに変えてよい(手順3の `.env` と合わせる)。`exit` で抜ける。
+
+```sql
+SHOW DATABASES;
+```
+一覧に pikunikki があれば OK です。終わったら exit で抜ける
 
 **3. バックエンドを準備して起動する**
 ```sh
