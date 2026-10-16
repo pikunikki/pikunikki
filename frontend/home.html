@@ -16,26 +16,63 @@
       <a href="mypage.html" class="mypage-btn">マイページ</a>
     </div>
   </div>
-  <svg class="choco-drip" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="#684a3b" d="
-      M0,0 L1200,0 L1200,60
-      C1180,75 1150,70 1130,60
-      C1090,40 1070,50 1060,90
-      C1050,140 1020,140 1010,90
-      C1000,50 960,40 920,60
-      C880,80 860,130 850,170
-      C845,200 805,200 800,170
-      C790,120 770,70 730,55
-      C690,40 650,60 630,90
-      C610,125 600,125 580,95
-      C550,50 500,40 450,60
-      C410,76 390,120 380,150
-      C372,175 340,175 332,150
-      C320,110 290,80 250,75
-      C200,70 170,100 150,130
-      C135,150 110,150 100,130
-      C85,100 50,90 0,110
-      Z" />
+  <svg class="choco-drip" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="chocoBody" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="160">
+        <stop offset="0"    stop-color="#684a3b"/>
+        <stop offset="0.45" stop-color="#5a3a2a"/>
+        <stop offset="1"    stop-color="#3a1b0e"/>
+      </linearGradient>
+      <filter id="soft" x="-10%" y="-50%" width="120%" height="200%">
+        <feGaussianBlur stdDeviation="1.5"/>
+      </filter>
+      <filter id="shadow" x="-5%" y="0%" width="110%" height="140%">
+        <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#3a1b0e" flood-opacity="0.35"/>
+      </filter>
+    </defs>
+
+    <!-- 本体 -->
+    <g filter="url(#shadow)">
+      <path fill="url(#chocoBody)" d="
+        M0,0 L1200,0 L1200,40
+        C1170,50 1140,46 1115,40
+        C1085,32 1070,45 1060,70
+        C1052,95 1018,95 1010,70
+        C1000,45 980,32 940,38
+        C900,44 875,70 860,100
+        C850,125 810,125 800,100
+        C790,70 770,44 730,38
+        C690,32 665,44 650,68
+        C638,92 612,92 600,68
+        C580,44 540,32 500,38
+        C460,44 435,66 420,92
+        C408,115 372,115 360,92
+        C348,66 320,44 280,40
+        C240,36 205,52 180,78
+        C165,95 135,95 120,78
+        C100,56 60,48 0,60
+        Z"/>
+    </g>
+    <!-- つや：縁の少し内側をなぞる細い光 -->
+    <path d="M1200,34 C1170,44 1140,40 1115,34
+            C1085,26 1070,39 1060,64
+            C1052,86 1018,86 1010,64
+            C1000,39 980,26 940,32
+            C900,38 875,64 860,94
+            C850,116 810,116 800,94
+            C790,64 770,38 730,32
+            C690,26 665,38 650,62
+            C638,84 612,84 600,62
+            C580,38 540,26 500,32
+            C460,38 435,60 420,86
+            C408,106 372,106 360,86
+            C348,60 320,38 280,34
+            C240,30 205,46 180,72
+            C165,86 135,86 120,72
+            C100,50 60,42 0,54"
+          fill="none" stroke="#fff" stroke-opacity="0.22"
+          stroke-width="2" stroke-linecap="round" filter="url(#soft)"
+          vector-effect="non-scaling-stroke"/>
   </svg>
  
 </div>
