@@ -1,0 +1,36 @@
+/* =========================================
+   ヘッダー(茶色の帯 + 垂れるチョコ)
+   ========================================= */
+.home-header {
+  position: relative;
+  z-index: 10;
+}
+
+.choco-bar {
+  position: relative;
+  z-index: 2;                 /* ドリップの上に重ねてつなぎ目を隠す */
+  background: var(--choco);
+}
+
+.header-content {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.home-logo {
+  height: 100px;
+  width: auto;
+}
+
+.choco-drip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 110px;
+  margin-top: -6px;           /* 帯に食い込ませて隙間を消す */
+  pointer-events: none;       /* 下のものを押せるように */
+}
