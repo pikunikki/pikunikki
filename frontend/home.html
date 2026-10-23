@@ -128,10 +128,17 @@
 
 <!-- 本 --->
 <div id="day-modal" class="day-modal" hidden>
-  <div class="book-page">
-    <button id="close-day-modal" class="book-close" type="button">×</button>
-    <p id="book-date" class="book-date"></p>
-    <div id="book-content"></div>
+  <div class="book-column">
+    <div class="book-page">
+      <button id="close-day-modal" class="book-close" type="button">×</button>
+      <p id="book-date" class="book-date"></p>
+      <div id="book-content"></div>
+
+      <div class="book-navigation">
+        <button id="previous-day" type="button">‹ 前の日</button>
+        <button id="next-day" type="button">次の日 ›</button>
+      </div>
+    </div>
 
     <div id="book-actions" class="book-actions" hidden>
       <button id="share-post" type="button">
@@ -139,19 +146,17 @@
       </button>
       <p id="share-message" class="share-message" role="status"></p>
     </div>
-
-    <div class="book-navigation">
-      <button id="previous-day" type="button">‹ 前の日</button>
-      <button id="next-day" type="button">次の日 ›</button>
-    </div>
   </div>
-</div>
-<div id="friend-picker" class="friend-picker" hidden>
-  <div class="friend-picker-panel">
-    <button id="close-friend-picker" type="button">×</button>
-    <h2>交換する友達を選ぶ</h2>
-    <div id="friend-list"></div>
-    <p id="friend-message" role="status"></p>
+
+  <div class="share-side">
+    <div id="friend-picker" class="friend-picker" hidden>
+      <div class="friend-picker-panel">
+        <button id="close-friend-picker" type="button">×</button>
+        <h2>交換する友達を選ぶ</h2>
+        <div id="friend-list"></div>
+        <p id="friend-message" role="status"></p>
+      </div>
+    </div>
   </div>
 </div>
 </main>
@@ -194,6 +199,16 @@
   let selectedDay = null;
   let selectedPostId = null;  
 
+  function openFriendPicker(postId) {
+    selectedPostId = Number(postId);
+    if (!selectedPostId) {
+      $('share-message').textContent = '交換する投稿がありません';
+      return;
+    }
+    $('friend-picker').hidden = false;
+    loadFriends();
+  }
+
   function showDay(d) {
     selectedDay = d;
 
@@ -208,13 +223,6 @@
         <article class="book-post">
           ${post.photo ? `<img src="${post.photo}" alt="">` : ''}
           <p></p>
-          <button
-            class="share-this-post"
-            type="button"
-            data-post-id="${post.id}"
-          >
-            この投稿を交換する
-          </button>
         </article>
       `).join('')
     : '<p class="book-empty">この日の投稿はありません</p>';
@@ -223,15 +231,8 @@
           element.textContent = list[index]?.text || '';
         });
 
-        $('book-actions').hidden = list.length === 0;
-        $('day-modal').hidden = false;
-        $('book-content').querySelectorAll('.share-this-post').forEach(button => {
-      button.addEventListener('click', () => {
-        selectedPostId = Number(button.dataset.postId);
-        $('friend-picker').hidden = false;
-        loadFriends();
-      });
-    });
+    $('book-actions').hidden = list.length === 0;
+    $('day-modal').hidden = false;
   }
 
   function loadFriends() {
@@ -284,6 +285,11 @@
 
     $('friend-message').textContent = '投稿を交換しました';
   }
+
+  $('share-post').addEventListener('click', () => {
+    const list = byDate[keyOf(viewYear, viewMonth, selectedDay)] || [];
+    if (list.length) openFriendPicker(list[0].id);
+  });
 
 
 
