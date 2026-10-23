@@ -13,7 +13,10 @@
   <div class="choco-bar">
     <div class="header-content">
       <img src="image/ピク日記ロゴ.png" alt="ピク日記" class="home-logo">
-      <a href="mypage.html" class="mypage-btn">マイページ</a>
+      <div class="header-actions">
+        <a href="mypage.html" class="mypage-btn">マイページ</a>
+        <button type="button" class="logout-btn" onclick="logout()">ログアウト</button>
+      </div>
     </div>
   </div>
   <svg class="choco-drip" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
@@ -140,7 +143,6 @@
 
 <script src="app.js"></script>
 <script>
-addLogoutButton();
 (function () {
   const $ = (id) => document.getElementById(id);
   const now = new Date();
