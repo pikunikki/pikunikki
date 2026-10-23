@@ -466,3 +466,77 @@ main {
   .post-label  { font-size: 12px; }
   .post-timer  { font-size: 12px; }
 }
+
+
+.day-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(58, 27, 14, 0.55);
+}
+
+.day-modal[hidden] {
+  display: none;
+}
+
+.book-page {
+  position: relative;
+  width: min(720px, 100%);
+  min-height: 440px;
+  padding: 42px 48px 32px;
+  border: 8px solid #d4a359;
+  border-radius: 8px;
+  background: #fff8e8;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.book-page::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 2px dashed #d4a359;
+  pointer-events: none;
+}
+
+.book-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  color: #4e2a18;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.book-post {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
+}
+
+.book-post img {
+  display: block;
+  max-width: 100%;
+  max-height: 280px;
+  margin: 0 auto 16px;
+  object-fit: contain;
+}
+
+.book-post p {
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+
+.book-navigation {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+}
