@@ -111,9 +111,18 @@ app.get('/api/me', auth, wrap(async (req, res) => {
   res.json({ username: req.user.username, character: req.user.character_id, postCount: n });
 }));
 
+// キャラ変更(マイページ)
+app.put('/api/me/character', auth, wrap(async (req, res) => {
+  const character = typeof req.body?.character === 'string' ? req.body.character : '';
+  const [chars] = await pool.query('SELECT id FROM characters WHERE id = ?', [character]);
+  if (!chars[0]) return res.status(400).json({ error: 'キャラクターが不正です' });
+  await pool.query('UPDATE users SET character_id = ? WHERE id = ?', [character, req.user.id]);
+  res.json({ character });
+}));
+
 app.get('/api/friends', auth, wrap(async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT u.id, u.username
+    `SELECT u.id, u.username, u.character_id AS \`character\`
      FROM friendships f
      JOIN users u ON u.id = f.friend_id
      WHERE f.user_id = ?
@@ -134,7 +143,7 @@ app.get('/api/users/search', auth, wrap(async (req, res) => {
   }
 
   const [rows] = await pool.query(
-    `SELECT id, username
+    `SELECT id, username, character_id AS \`character\`
      FROM users
      WHERE id <> ?
        AND username LIKE ?
@@ -144,6 +153,29 @@ app.get('/api/users/search', auth, wrap(async (req, res) => {
   );
 
   res.json(rows);
+}));
+
+// 自分宛ての未承認の友達申請
+app.get('/api/friend-requests', auth, wrap(async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT fr.id, u.username, u.character_id AS \`character\`
+     FROM friend_requests fr
+     JOIN users u ON u.id = fr.sender_id
+     WHERE fr.receiver_id = ? AND fr.status = 'pending'
+     ORDER BY fr.created_at DESC, fr.id DESC`,
+    [req.user.id]
+  );
+  res.json(rows);
+}));
+
+app.post('/api/friend-requests/:id/reject', auth, wrap(async (req, res) => {
+  const [r] = await pool.query(
+    `UPDATE friend_requests SET status = 'rejected'
+     WHERE id = ? AND receiver_id = ? AND status = 'pending'`,
+    [Number(req.params.id), req.user.id]
+  );
+  if (!r.affectedRows) return res.status(404).json({ error: '申請が見つかりません' });
+  res.json({ ok: true });
 }));
 
 app.post('/api/friend-requests', auth, wrap(async (req, res) => {
@@ -224,6 +256,14 @@ app.post('/api/friend-requests/:id/accept', auth, wrap(async (req, res) => {
        SET status = 'accepted'
        WHERE id = ?`,
       [requestId]
+    );
+
+    // 相手からも申請していた場合は、そちらも承認済みにする
+    await conn.query(
+      `UPDATE friend_requests
+       SET status = 'accepted'
+       WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'`,
+      [request.receiver_id, request.sender_id]
     );
 
     await conn.query(
