@@ -34,11 +34,13 @@ const box = document.getElementById('chars');
 CHARACTERS.forEach((c) => {
   const el = document.createElement('div');
   el.className = 'char';
+  el.dataset.id = c.id;
   el.innerHTML = `<img src="${c.card}" alt="${c.name}">`;
   el.onclick = () => {
     selected = c.id;
     box.querySelectorAll('.char').forEach((x) => x.classList.remove('selected'));
     el.classList.add('selected');
+    document.getElementById('ok').classList.add('glow');
   };
   box.appendChild(el);
 });
