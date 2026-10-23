@@ -37,14 +37,6 @@ body {
   pointer-events: none;
 }
 
-/* ヘッダー */
-header {
-  padding-top: 35px;
-  text-align: center;
-  position: relative;
-  z-index: 20;
-}
-
 .logo-card {
   display: inline-block;
   background: #fff;

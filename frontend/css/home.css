@@ -113,6 +113,10 @@ main {
   transition: transform 0.1s, box-shadow 0.1s;
 }
 .post-circle:hover  { transform: scale(1.05); }
+.post-circle[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.85;
+}
 .post-circle:active {
   transform: translateY(5px);
   box-shadow:
