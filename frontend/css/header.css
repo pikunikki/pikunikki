@@ -1,15 +1,27 @@
 /* =========================================
    ヘッダー(茶色の帯 + 垂れるチョコ)
    ========================================= */
+#common-header {
+  width: 100%;
+  align-self: stretch;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
 .home-header {
   position: relative;
+  width: 100%;
+  height: 120px;
   z-index: 10;
 }
 
 .choco-bar {
   position: relative;
   z-index: 2;                 /* ドリップの上に重ねてつなぎ目を隠す */
-  background: var(--choco);
+  background: var(--choco, #684a3b);
 }
 
 .header-content {
@@ -26,6 +38,7 @@
 }
 
 .choco-drip {
+  display: block;
   position: absolute;
   top: 100%;
   left: 0;

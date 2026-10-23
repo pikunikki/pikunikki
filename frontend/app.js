@@ -145,7 +145,7 @@ function postHtml(p) {
     `<p>${escapeHtml(p.text).replace(/\n/g, '<br>')}</p></div>`;
 }
 
-
+if (typeof require !== 'undefined') {
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -285,21 +285,4 @@ app.use((err, req, res, next) => {
 
 if (require.main === module) app.listen(port, () => console.log(`http://localhost:${port}`));
 module.exports = app;
-
-document.addEventListener("DOMContentLoaded", () => {
-  const header = document.getElementById("common-header");
-
-  if (!header) return;
-
-  fetch("header.html")
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("ヘッダーを読み込めませんでした");
-      }
-      return response.text();
-    })
-    .then(html => {
-      header.innerHTML = html;
-    })
-    .catch(error => console.error(error));
-});
+}

@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="/css/header.css">
 </head>
 <body>
+<div id="common-header"></div>
 <main>
     <h1>キャラクターを選ぼう</h1>
     <div class="chars" id="chars"></div>
     <p class="error" id="error"></p>
     <button class="btn" id="ok">これに決定</button>
 </main>
+<script src="header.js"></script>
 <script src="app.js"></script>
 <script>
 const pending = JSON.parse(sessionStorage.getItem('pending') || 'null');
