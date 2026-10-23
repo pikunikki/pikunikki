@@ -9,10 +9,10 @@ const demoGet = (key, fallback) => { try { return JSON.parse(localStorage.getIte
 const demoSet = (key, value) => localStorage.setItem('demo.' + key, JSON.stringify(value));
 
 const CHARACTERS = [
-  { id: 'pink', name: 'ピンク', image: 'image/pink.webp' },
-  { id: 'orange', name: 'オレンジ', image: 'image/orange.webp' },
-  { id: 'purple', name: 'パープル', image: 'image/purple.webp' },
-  { id: 'blue', name: 'ブルー', image: 'image/blue.webp' },
+  { id: 'pink', name: 'ピンク', image: 'image/pink.webp', card: 'image/card-pink.jpg' },
+  { id: 'orange', name: 'オレンジ', image: 'image/orange.webp', card: 'image/card-orange.jpg' },
+  { id: 'purple', name: 'パープル', image: 'image/purple.webp', card: 'image/card-purple.jpg' },
+  { id: 'blue', name: 'ブルー', image: 'image/blue.webp', card: 'image/card-blue.jpg' },
 ];
 
 // 同期API呼び出し。通信失敗は例外
