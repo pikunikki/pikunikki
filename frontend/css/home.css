@@ -600,7 +600,7 @@ main {
   padding: 10px 18px;
   border: 2px solid #4e2a18;
   border-radius: 4px;
-  background: transparent;
+  background: #fff8e8;
   color: #4e2a18;
   cursor: pointer;
 }
