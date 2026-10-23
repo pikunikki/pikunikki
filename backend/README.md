@@ -10,7 +10,7 @@ GRANT ALL ON pikunikki.* TO 'pikunikki'@'localhost';
 cd backend
 npm install
 cp .env.example .env   # DB接続情報を編集
-npm run db:init        # テーブル作成 + キャラ初期データ(旧スキーマのDBは email 列を自動追加)
+npm run db:init        # テーブル作成 + キャラ初期データ(旧スキーマのDBは email・user_code 列を自動追加。既存ユーザーのIDは user<番号>)
 npm start              # http://localhost:3000
 ```
 
@@ -18,16 +18,16 @@ npm start              # http://localhost:3000
 | メソッド | パス | 内容 |
 |---|---|---|
 | GET | /api/characters | キャラ一覧 |
-| GET | /api/users/exists?email= | メール登録済みか(新規登録の重複チェック) |
-| POST | /api/register | `{nickname,email,password,character}` 登録＋ログイン |
+| GET | /api/users/exists?email= / ?userId= | メール・IDが登録済みか(新規登録の重複チェック) |
+| POST | /api/register | `{nickname,userId,email,password,character}` 登録＋ログイン(userId は半角英数字と_の3〜20文字・大文字小文字は区別しない) |
 | POST | /api/login | `{email,password}` |
 | POST | /api/logout | |
 | GET | /api/me | 自分の情報＋投稿数(要ログイン) |
 | GET | /api/posts | 自分の投稿一覧(要ログイン) |
 | POST | /api/posts | multipart: `text`(必須), `photo`(任意, 5MBまで) |
 | PUT | /api/me/character | `{character}` キャラ変更 |
-| GET | /api/friends | 友達一覧 `[{id,username,character}]` |
-| GET | /api/users/search?keyword= | ニックネームで検索(自分以外) |
+| GET | /api/friends | 友達一覧 `[{id,username,userId,character}]` |
+| GET | /api/users/search?userId= | IDで検索(完全一致・自分以外) |
 | GET | /api/friend-requests | 自分宛ての未承認の友達申請 |
 | POST | /api/friend-requests | `{receiverId}` 友達申請を送る |
 | POST | /api/friend-requests/:id/accept | 申請を承認(友達になる) |

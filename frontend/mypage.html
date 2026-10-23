@@ -31,6 +31,7 @@
       <div class="avatar" id="avatar"><img id="avatar-img" alt=""></div>
       <div class="profile-body">
         <div class="name-row"><span class="name-label">name :</span><span class="user-name" id="user-name"></span></div>
+        <div class="user-id">ID : <span id="user-id"></span></div>
         <svg class="name-drip" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true"><path fill="#684a3b" d="M0,0 H300 V6 C285,6 282,22 270,22 C258,22 255,6 240,6 C225,6 222,18 210,18 C198,18 195,6 180,6 C165,6 162,24 150,24 C138,24 135,6 120,6 C105,6 102,16 90,16 C78,16 75,6 60,6 C45,6 42,20 30,20 C18,20 15,6 0,6 Z"/></svg>
         <div class="change-title">キャラ変更</div>
         <div class="char-row" id="char-row"></div>
@@ -47,8 +48,8 @@
 
       <div class="panel" id="add-panel" hidden>
         <form class="search-form" id="search-form">
-          <label class="sr-only" for="search-keyword">ニックネーム</label>
-          <input type="text" id="search-keyword" placeholder="ニックネームで探す" autocomplete="off">
+          <label class="sr-only" for="search-keyword">ID</label>
+          <input type="text" id="search-keyword" placeholder="IDで探す(例: pikuchan_01)" autocomplete="off" autocapitalize="off">
           <button type="submit" class="pill-btn">検索</button>
         </form>
         <ul class="people" id="search-results"></ul>
@@ -79,6 +80,7 @@ function showMe() {
   const user = me();
   if (!user) return;
   $('user-name').textContent = user.username;
+  $('user-id').textContent = user.userId;
   const c = getCharacter(user.character);
   $('avatar-img').src = c ? c.image : '';
   $('avatar').dataset.id = user.character;
@@ -102,7 +104,7 @@ CHARACTERS.forEach((c) => {
 
 // ---- 友達 ----
 const personHtml = (p, actions = '') =>
-  `<li class="person"><span class="person-avatar">${avatarOf(p.character)}</span><span class="person-name">${escapeHtml(p.username)}</span>${actions}</li>`;
+  `<li class="person"><span class="person-avatar">${avatarOf(p.character)}</span><span class="person-name">${escapeHtml(p.username)}<small class="person-id">@${escapeHtml(p.userId || '')}</small></span>${actions}</li>`;
 
 function renderFriends() {
   const friends = getFriends();
@@ -142,7 +144,7 @@ $('search-form').addEventListener('submit', (e) => {
   const found = searchUsers(keyword);
   $('search-results').innerHTML = found.map((u) =>
     personHtml(u, `<span class="person-actions"><button type="button" class="pill-btn" data-send="${u.id}">申請する</button></span>`)).join('');
-  if (!found.length) $('search-msg').textContent = '見つかりませんでした';
+  if (!found.length) $('search-msg').textContent = 'そのIDのユーザーは見つかりませんでした';
 });
 
 $('search-results').addEventListener('click', (e) => {

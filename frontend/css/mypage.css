@@ -64,6 +64,7 @@ main {
 .name-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .name-label { font-size: 1.4rem; color: var(--text-sub); }
 .user-name { font-size: 1.8rem; font-weight: bold; overflow-wrap: anywhere; }
+.user-id { margin: 4px 0 8px; font-size: .9rem; color: var(--text-sub); overflow-wrap: anywhere; }
 .name-drip { display: block; width: 100%; max-width: 300px; height: 20px; margin: 2px 0 14px; }
 
 .change-title { font-size: .9rem; font-weight: bold; margin-bottom: 8px; }
@@ -122,6 +123,7 @@ main {
 .person-avatar { flex: none; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: #ffd1dc; }
 .person-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .person-name { flex: 1; min-width: 0; font-weight: bold; overflow-wrap: anywhere; }
+.person-id { display: block; font-size: .75rem; font-weight: normal; color: var(--text-sub); }
 .person-actions { display: flex; gap: 6px; }
 .person-actions .pill-btn { padding: 4px 12px; font-size: .8rem; }
 
