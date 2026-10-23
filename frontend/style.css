@@ -35,6 +35,18 @@ body { margin: 0; font-family: sans-serif; background: #fff7ee; color: #333; }
   font-weight: bold;
   text-decoration: none;
 }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.logout-btn {
+  padding: 10px 22px;
+  border: 3px solid #ffb3cf;
+  border-radius: 999px;
+  background: #fff8f0;
+  color: #4e2a18;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.logout-btn:hover { background: #ffe3ee; }
 main { position: relative; z-index: 1; }
 main { max-width: 480px; margin: 0 auto; padding: 52px 16px 24px; }
 h1 { text-align: center; font-size: 1.5rem; }
