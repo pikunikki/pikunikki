@@ -18,8 +18,8 @@ npm start              # http://localhost:3000
 | メソッド | パス | 内容 |
 |---|---|---|
 | GET | /api/characters | キャラ一覧 |
-| GET | /api/users/exists?email= / ?userId= | メール・IDが登録済みか(新規登録の重複チェック) |
-| POST | /api/register | `{nickname,userId,email,password,character}` 登録＋ログイン(userId は半角英数字と_の3〜20文字・大文字小文字は区別しない) |
+| GET | /api/users/exists?email= | メール登録済みか(新規登録の重複チェック) |
+| POST | /api/register | `{nickname,email,password,character}` 登録＋ログイン。ユーザーID(8文字の英数字)はサーバーが自動で発行し、レスポンスの `userId` で返す |
 | POST | /api/login | `{email,password}` |
 | POST | /api/logout | |
 | GET | /api/me | 自分の情報＋投稿数(要ログイン) |

@@ -56,13 +56,15 @@
         <p class="msg" id="search-msg" role="status"></p>
       </div>
 
-      <div class="panel" id="requests-panel" hidden>
-        <h3 class="sub-title">届いている申請</h3>
-        <ul class="people" id="requests-list"></ul>
-      </div>
-
       <ul class="people" id="friends-list"></ul>
       <p class="empty" id="friends-empty" hidden>まだ友達がいません。「友達追加」から探してみよう。</p>
+    </section>
+
+    <!-- 申請(友達申請が届いているときだけ表示) -->
+    <section class="card requests-card" id="requests-panel" hidden>
+      <h2 class="card-title">申請</h2>
+      <ul class="people" id="requests-list"></ul>
+      <p class="msg" id="requests-msg" role="status"></p>
     </section>
   </main>
 
@@ -124,7 +126,8 @@ $('requests-list').addEventListener('click', (e) => {
   const reject = e.target.dataset.reject;
   const id = Number(accept || reject);
   if (!id) return;
-  try { answerFriendRequest(id, Boolean(accept)); } catch (err) { $('search-msg').textContent = err.message; }
+  try { answerFriendRequest(id, Boolean(accept)); } catch (err) { $('requests-msg').textContent = err.message; return; }
+  $('requests-msg').textContent = '';
   renderRequests();
   renderFriends();
 });

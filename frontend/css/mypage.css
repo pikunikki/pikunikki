@@ -44,6 +44,7 @@ main {
 }
 
 .card-title { margin: 0; font-size: 1.1rem; }
+.requests-card .card-title { margin-bottom: 14px; }
 
 /* ---- プロフィール ---- */
 .profile-card { display: flex; align-items: center; gap: 32px; }

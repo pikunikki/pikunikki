@@ -68,16 +68,13 @@ async function loginSubmit(event) {
 async function signupSubmit(event) {
   event.preventDefault();
   const nickname = document.getElementById('signup-name').value.trim();
-  const userId = document.getElementById('signup-id').value.trim().toLowerCase();
   const email = document.getElementById('signup-email').value.trim();
   const password = await sha256(document.getElementById('signup-password').value);
   if (!DEMO_MODE) {
     const r = api('GET', '/api/users/exists?email=' + encodeURIComponent(email));
     if (r.ok && r.data.exists) { alert('このメールアドレスは登録済みです'); return; }
-    const r2 = api('GET', '/api/users/exists?userId=' + encodeURIComponent(userId));
-    if (r2.ok && r2.data.exists) { alert('このIDは使われています'); return; }
   }
-  sessionStorage.setItem('pending', JSON.stringify({ name: nickname, userId, email, password }));
+  sessionStorage.setItem('pending', JSON.stringify({ name: nickname, email, password }));
   location.href = 'character.html';
 }
 
@@ -89,12 +86,12 @@ function save(key, value) {
   const [name, u] = Object.entries(value)[0];
   if (DEMO_MODE) { // キャラ選択の結果だけ覚えておく
     demoSet('name', name);
-    demoSet('userId', JSON.parse(sessionStorage.getItem('pending') || '{}').userId || 'guest');
+    demoSet('userId', 'pika' + Math.random().toString(36).slice(2, 6)); // デモではIDを自動で発行したことにする
     demoSet('character', u.character);
     return;
   }
   const pending = JSON.parse(sessionStorage.getItem('pending') || '{}');
-  const r = api('POST', '/api/register', { nickname: name, userId: pending.userId, email: pending.email, password: u.password, character: u.character });
+  const r = api('POST', '/api/register', { nickname: name, email: pending.email, password: u.password, character: u.character });
   if (!r.ok) {
     alert((r.data && r.data.error) || '登録に失敗しました');
     location.href = 'signup.html';
