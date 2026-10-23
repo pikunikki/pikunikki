@@ -137,6 +137,68 @@ function addPost(post) {
   if (!r.ok) throw new Error((r.data && r.data.error) || '投稿に失敗しました'); // post.html が catch して表示
 }
 
+// ---- キャラ変更・友達 ----
+// デモモード用の登録済みユーザー(検索・申請の相手)
+const DEMO_USERS = [
+  { id: 101, username: 'ゆず', character: 'orange' },
+  { id: 102, username: 'めいか', character: 'purple' },
+  { id: 103, username: 'ゆゆめろ', character: 'blue' },
+  { id: 104, username: 'ふわる', character: 'pink' },
+];
+
+function setCharacter(id) {
+  if (DEMO_MODE) { demoSet('character', id); return; }
+  const r = api('PUT', '/api/me/character', { character: id });
+  if (!r.ok) throw new Error((r.data && r.data.error) || 'キャラの変更に失敗しました');
+  meCache = undefined;
+}
+
+// 友達一覧 [{ id, username, character }]
+function getFriends() {
+  if (DEMO_MODE) return DEMO_USERS.filter((u) => demoGet('friends', []).includes(u.id));
+  const r = api('GET', '/api/friends');
+  return r.ok ? r.data : [];
+}
+
+// ニックネームの部分一致で検索(自分は除く)
+function searchUsers(keyword) {
+  if (DEMO_MODE) return DEMO_USERS.filter((u) => u.username.includes(keyword));
+  const r = api('GET', '/api/users/search?keyword=' + encodeURIComponent(keyword));
+  return r.ok ? r.data : [];
+}
+
+function sendFriendRequest(userId) {
+  if (DEMO_MODE) {
+    if (demoGet('friends', []).includes(userId)) throw new Error('すでに友達です');
+    const sent = demoGet('sentRequests', []);
+    if (sent.includes(userId)) throw new Error('申請済みです');
+    demoSet('sentRequests', [...sent, userId]);
+    return;
+  }
+  const r = api('POST', '/api/friend-requests', { receiverId: userId });
+  if (!r.ok) throw new Error((r.data && r.data.error) || '申請に失敗しました');
+}
+
+// 自分宛ての未承認の申請 [{ id, username, character }]
+function getFriendRequests() {
+  if (DEMO_MODE) { // デモは「ゆず」から申請が届いている状態から始まる
+    const handled = demoGet('handledRequests', []);
+    return DEMO_USERS.filter((u) => u.id === 101 && !handled.includes(u.id)).map((u) => ({ id: u.id, username: u.username, character: u.character }));
+  }
+  const r = api('GET', '/api/friend-requests');
+  return r.ok ? r.data : [];
+}
+
+function answerFriendRequest(id, accept) {
+  if (DEMO_MODE) {
+    demoSet('handledRequests', [...demoGet('handledRequests', []), id]);
+    if (accept) demoSet('friends', [...demoGet('friends', []), id]);
+    return;
+  }
+  const r = api('POST', `/api/friend-requests/${id}/${accept ? 'accept' : 'reject'}`);
+  if (!r.ok) throw new Error((r.data && r.data.error) || '処理に失敗しました');
+}
+
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function postHtml(p) {

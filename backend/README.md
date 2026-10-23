@@ -25,5 +25,12 @@ npm start              # http://localhost:3000
 | GET | /api/me | 自分の情報＋投稿数(要ログイン) |
 | GET | /api/posts | 自分の投稿一覧(要ログイン) |
 | POST | /api/posts | multipart: `text`(必須), `photo`(任意, 5MBまで) |
+| PUT | /api/me/character | `{character}` キャラ変更 |
+| GET | /api/friends | 友達一覧 `[{id,username,character}]` |
+| GET | /api/users/search?keyword= | ニックネームで検索(自分以外) |
+| GET | /api/friend-requests | 自分宛ての未承認の友達申請 |
+| POST | /api/friend-requests | `{receiverId}` 友達申請を送る |
+| POST | /api/friend-requests/:id/accept | 申請を承認(友達になる) |
+| POST | /api/friend-requests/:id/reject | 申請を拒否 |
 
 `frontend/` を静的配信しているので、`http://localhost:3000/` で開けば同一オリジンでCookieが使えます。
