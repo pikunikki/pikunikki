@@ -14,6 +14,26 @@ npm run db:init        # テーブル作成 + キャラ初期データ(旧スキ
 npm start              # http://localhost:3000
 ```
 
+## データベースの初期化(全データを消して作り直す)
+ユーザー・投稿・友達などをすべて消して、最初の状態に戻します。**元に戻せません。**
+
+管理者権限(root など)でMySQLに入り、データベースを作り直します。
+```sh
+mysql -u root -p
+```
+```sql
+DROP DATABASE pikunikki;
+CREATE DATABASE pikunikki CHARACTER SET utf8mb4;
+```
+```sh
+cd backend
+npm run db:init        # テーブル作成 + キャラ初期データ
+rm uploads/*           # 投稿した画像も消す場合
+```
+- `pikunikki` ユーザーの権限はデータベースを消しても残ります。接続できなくなったら、セットアップの `GRANT` をもう一度実行してください。
+- セッションも消えるので、ブラウザは自動でログイン画面に戻ります。新規登録からやり直せます。
+- GitHub Pages のデモモードのデータはブラウザの localStorage にあるため、この手順では消えません。
+
 ## API(認証は httpOnly Cookie `session`)
 | メソッド | パス | 内容 |
 |---|---|---|
