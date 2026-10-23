@@ -112,6 +112,20 @@ function logout() {
   location.href = 'login.html';
 }
 
+// ログイン中のページの右上に常に表示するログアウトボタン(スクロールしても固定)
+function addLogoutButton() {
+  const style = document.createElement('style');
+  style.textContent = `.logout-btn { position: fixed; top: 10px; right: 16px; z-index: 100; padding: 4px 14px; border: 2px solid #ffb3cf; border-radius: 999px; background: #fff8f0; color: #4e2a18; font-size: .8rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.logout-btn:hover { background: #ffe3ee; }`;
+  document.head.appendChild(style);
+  const btn = document.createElement('button');
+  btn.className = 'logout-btn';
+  btn.type = 'button';
+  btn.textContent = 'ログアウト';
+  btn.onclick = logout;
+  document.body.appendChild(btn);
+}
+
 // ---- 投稿 ----
 const getPosts = () => {
   if (DEMO_MODE) return demoGet('posts', []);
