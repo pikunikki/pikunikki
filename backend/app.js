@@ -111,8 +111,215 @@ app.get('/api/me', auth, wrap(async (req, res) => {
   res.json({ username: req.user.username, character: req.user.character_id, postCount: n });
 }));
 
+app.get('/api/friends', auth, wrap(async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT u.id, u.username
+     FROM friendships f
+     JOIN users u ON u.id = f.friend_id
+     WHERE f.user_id = ?
+     ORDER BY u.username`,
+    [req.user.id]
+  );
+
+  res.json(rows);
+}));
+
+app.get('/api/users/search', auth, wrap(async (req, res) => {
+  const keyword = typeof req.query.keyword === 'string'
+    ? req.query.keyword.trim()
+    : '';
+
+  if (!keyword) {
+    return res.json([]);
+  }
+
+  const [rows] = await pool.query(
+    `SELECT id, username
+     FROM users
+     WHERE id <> ?
+       AND username LIKE ?
+     ORDER BY username
+     LIMIT 20`,
+    [req.user.id, `%${keyword}%`]
+  );
+
+  res.json(rows);
+}));
+
+app.post('/api/friend-requests', auth, wrap(async (req, res) => {
+  const receiverId = Number(req.body?.receiverId);
+
+  if (!Number.isInteger(receiverId) || receiverId <= 0) {
+    return res.status(400).json({ error: '送信先が不正です' });
+  }
+
+  if (receiverId === req.user.id) {
+    return res.status(400).json({ error: '自分自身には申請できません' });
+  }
+
+  const [users] = await pool.query(
+    'SELECT id FROM users WHERE id = ?',
+    [receiverId]
+  );
+
+  if (!users[0]) {
+    return res.status(404).json({ error: 'ユーザーが見つかりません' });
+  }
+
+  const [friends] = await pool.query(
+    `SELECT 1
+     FROM friendships
+     WHERE user_id = ? AND friend_id = ?`,
+    [req.user.id, receiverId]
+  );
+
+  if (friends.length) {
+    return res.status(409).json({ error: 'すでに友達です' });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO friend_requests
+       (sender_id, receiver_id)
+       VALUES (?, ?)`,
+      [req.user.id, receiverId]
+    );
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: '申請済みです' });
+    }
+    throw error;
+  }
+
+  res.status(201).json({ ok: true });
+}));
+
+app.post('/api/friend-requests/:id/accept', auth, wrap(async (req, res) => {
+  const requestId = Number(req.params.id);
+
+  const conn = await pool.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    const [requests] = await conn.query(
+      `SELECT sender_id, receiver_id
+       FROM friend_requests
+       WHERE id = ?
+         AND receiver_id = ?
+         AND status = 'pending'
+       FOR UPDATE`,
+      [requestId, req.user.id]
+    );
+
+    const request = requests[0];
+
+    if (!request) {
+      await conn.rollback();
+      return res.status(404).json({ error: '申請が見つかりません' });
+    }
+
+    await conn.query(
+      `UPDATE friend_requests
+       SET status = 'accepted'
+       WHERE id = ?`,
+      [requestId]
+    );
+
+    await conn.query(
+      `INSERT IGNORE INTO friendships
+       (user_id, friend_id)
+       VALUES (?, ?), (?, ?)`,
+      [
+        request.sender_id,
+        request.receiver_id,
+        request.receiver_id,
+        request.sender_id,
+      ]
+    );
+
+    await conn.commit();
+    res.json({ ok: true });
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
+}));
+
+app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
+  const postId = Number(req.params.id);
+  const receiverId = Number(req.body?.receiverId);
+
+  if (!Number.isInteger(postId) || !Number.isInteger(receiverId)) {
+    return res.status(400).json({ error: '入力が不正です' });
+  }
+
+  if (receiverId === req.user.id) {
+    return res.status(400).json({ error: '自分自身には送れません' });
+  }
+
+  const [posts] = await pool.query(
+    `SELECT id
+     FROM posts
+     WHERE id = ? AND user_id = ?`,
+    [postId, req.user.id]
+  );
+
+  if (!posts[0]) {
+    return res.status(404).json({ error: '自分の投稿ではありません' });
+  }
+
+  const [friends] = await pool.query(
+    `SELECT 1
+     FROM friendships
+     WHERE user_id = ? AND friend_id = ?`,
+    [req.user.id, receiverId]
+  );
+
+  if (!friends.length) {
+    return res.status(403).json({ error: '友達にだけ送信できます' });
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO shared_posts
+       (post_id, sender_id, receiver_id)
+       VALUES (?, ?, ?)`,
+      [postId, req.user.id, receiverId]
+    );
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'すでに送信済みです' });
+    }
+    throw error;
+  }
+
+  res.status(201).json({ ok: true });
+}));
+
 app.get('/api/posts', auth, wrap(async (req, res) => {
-  const [rows] = await pool.query('SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC, id DESC', [req.user.id]);
+  const [rows] = await pool.query(
+    `SELECT DISTINCT p.*
+     FROM posts p
+     LEFT JOIN shared_posts sp
+       ON sp.post_id = p.id
+     WHERE
+       (
+         p.user_id = ?
+         AND NOT EXISTS (
+           SELECT 1
+           FROM shared_posts sent
+           WHERE sent.post_id = p.id
+             AND sent.sender_id = ?
+         )
+       )
+       OR sp.receiver_id = ?
+     ORDER BY p.created_at DESC, p.id DESC`,
+    [req.user.id, req.user.id, req.user.id]
+  );
+
   res.json(rows.map(toPost));
 }));
 
