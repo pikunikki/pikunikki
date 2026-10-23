@@ -36,5 +36,12 @@ async function migrateUserCode(conn) {
   }
   await migrate(conn);
   await migrateUserCode(conn);
+  const [sharedPostColumns] = await conn.query("SHOW COLUMNS FROM shared_posts LIKE 'status'");
+  if (!sharedPostColumns.length) {
+    await conn.query(
+      "ALTER TABLE shared_posts ADD COLUMN status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending' AFTER receiver_id"
+    );
+    console.log('migrated shared_posts: added status');
+  }
   await conn.end();
 })().catch((e) => { console.error(e.message); process.exit(1); });

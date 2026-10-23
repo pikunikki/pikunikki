@@ -120,6 +120,18 @@ const getPosts = () => {
   return r.ok ? r.data : [];
 };
 
+const getShareRequests = () => {
+  if (DEMO_MODE) return [];
+  const r = api('GET', '/api/shared-post-requests');
+  return r.ok ? r.data : [];
+};
+
+const answerShareRequest = (postId, action) => {
+  if (DEMO_MODE) return;
+  const r = api('POST', `/api/shared-post-requests/${postId}/${action}`);
+  if (!r.ok) throw new Error((r.data && r.data.error) || '交換申請の処理に失敗しました');
+};
+
 function dataUrlToBlob(url) {
   const [head, b64] = url.split(',');
   const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));

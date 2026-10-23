@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS shared_posts (
   post_id     INT NOT NULL,
   sender_id   INT NOT NULL,
   receiver_id INT NOT NULL,
+  status      ENUM('pending', 'accepted', 'rejected')
+              NOT NULL DEFAULT 'pending',
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (post_id, receiver_id),

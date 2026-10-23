@@ -223,6 +223,13 @@
         <article class="book-post">
           ${post.photo ? `<img src="${post.photo}" alt="">` : ''}
           <p></p>
+          ${post.isShareRequest ? `
+            <p class="share-request-label">${post.senderName}さんから交換申請</p>
+            <div class="share-request-actions">
+              <button type="button" class="accept-share" data-post-id="${post.id}">交換を承認</button>
+              <button type="button" class="reject-share" data-post-id="${post.id}">拒否</button>
+            </div>
+          ` : ''}
         </article>
       `).join('')
     : '<p class="book-empty">この日の投稿はありません</p>';
@@ -231,7 +238,27 @@
           element.textContent = list[index]?.text || '';
         });
 
-    $('book-actions').hidden = list.length === 0;
+        $('book-content').querySelectorAll('.accept-share, .reject-share').forEach(button => {
+          button.addEventListener('click', () => {
+            const action = button.classList.contains('accept-share') ? 'accept' : 'reject';
+            try {
+              answerShareRequest(Number(button.dataset.postId), action);
+              const listForDay = byDate[keyOf(viewYear, viewMonth, selectedDay)] || [];
+              const post = listForDay.find(item => item.id === Number(button.dataset.postId));
+              if (action === 'accept' && post) post.isShareRequest = false;
+              const index = listForDay.findIndex(item => item.id === Number(button.dataset.postId));
+              if (action === 'reject' || index < 0) {
+                if (index >= 0) listForDay.splice(index, 1);
+              }
+              renderCalendar();
+              showDay(selectedDay);
+            } catch (error) {
+              $('share-message').textContent = error.message;
+            }
+          });
+        });
+
+    $('book-actions').hidden = !list.some(post => !post.isShareRequest);
     $('day-modal').hidden = false;
   }
 
@@ -283,7 +310,17 @@
       return;
     }
 
-    $('friend-message').textContent = '投稿を交換しました';
+    Object.keys(byDate).forEach(key => {
+      byDate[key] = byDate[key].filter(post => post.id !== selectedPostId);
+      if (!byDate[key].length) delete byDate[key];
+    });
+    renderCalendar();
+    $('friend-picker').hidden = true;
+    $('friend-list').innerHTML = '';
+    $('friend-message').textContent = '';
+    $('share-message').textContent = '投稿を交換しました';
+    showDay(selectedDay);
+    selectedPostId = null;
   }
 
   $('share-post').addEventListener('click', () => {
@@ -386,7 +423,8 @@
 
 
       const posts = getPosts();
-      posts.forEach(p => {
+      const shareRequests = getShareRequests();
+      [...posts, ...shareRequests].forEach(p => {
         const dt = new Date(p.date);
         const k = keyOf(dt.getFullYear(), dt.getMonth(), dt.getDate());
         (byDate[k] = byDate[k] || []).push(p);

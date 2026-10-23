@@ -135,6 +135,9 @@ app.get('/api/friends', auth, wrap(async (req, res) => {
     `SELECT u.id, u.username, u.user_code AS userId, u.character_id AS \`character\`
      FROM friendships f
      JOIN users u ON u.id = f.friend_id
+     JOIN friendships reciprocal
+       ON reciprocal.user_id = f.friend_id
+      AND reciprocal.friend_id = f.user_id
      WHERE f.user_id = ?
      ORDER BY u.username`,
     [req.user.id]
@@ -314,20 +317,23 @@ app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
 
   const [friends] = await pool.query(
     `SELECT 1
-     FROM friendships
-     WHERE user_id = ? AND friend_id = ?`,
+     FROM friendships f
+     JOIN friendships reciprocal
+       ON reciprocal.user_id = f.friend_id
+      AND reciprocal.friend_id = f.user_id
+     WHERE f.user_id = ? AND f.friend_id = ?`,
     [req.user.id, receiverId]
   );
 
   if (!friends.length) {
-    return res.status(403).json({ error: '友達にだけ送信できます' });
+    return res.status(403).json({ error: '相手が友達申請を承認していないため送信できません' });
   }
 
   try {
     await pool.query(
       `INSERT INTO shared_posts
-       (post_id, sender_id, receiver_id)
-       VALUES (?, ?, ?)`,
+       (post_id, sender_id, receiver_id, status)
+       VALUES (?, ?, ?, 'pending')`,
       [postId, req.user.id, receiverId]
     );
   } catch (error) {
@@ -340,12 +346,47 @@ app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
   res.status(201).json({ ok: true });
 }));
 
+app.get('/api/shared-post-requests', auth, wrap(async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT sp.post_id AS id, sp.sender_id AS senderId,
+            u.username AS senderName, p.text, p.photo_path, p.created_at
+     FROM shared_posts sp
+     JOIN posts p ON p.id = sp.post_id
+     JOIN users u ON u.id = sp.sender_id
+     WHERE sp.receiver_id = ? AND sp.status = 'pending'
+     ORDER BY sp.created_at DESC, sp.post_id DESC`,
+    [req.user.id]
+  );
+  res.json(rows.map((row) => ({
+    ...toPost(row),
+    senderId: row.senderId,
+    senderName: row.senderName,
+    isShareRequest: true,
+  })));
+}));
+
+app.post('/api/shared-post-requests/:id/:action', auth, wrap(async (req, res) => {
+  const action = req.params.action;
+  if (action !== 'accept' && action !== 'reject') {
+    return res.status(400).json({ error: '処理が不正です' });
+  }
+  const status = action === 'accept' ? 'accepted' : 'rejected';
+  const [result] = await pool.query(
+    `UPDATE shared_posts
+     SET status = ?
+     WHERE post_id = ? AND receiver_id = ? AND status = 'pending'`,
+    [status, Number(req.params.id), req.user.id]
+  );
+  if (!result.affectedRows) return res.status(404).json({ error: '交換申請が見つかりません' });
+  res.json({ ok: true });
+}));
+
 app.get('/api/posts', auth, wrap(async (req, res) => {
   const [rows] = await pool.query(
     `SELECT DISTINCT p.*
      FROM posts p
      LEFT JOIN shared_posts sp
-       ON sp.post_id = p.id
+       ON sp.post_id = p.id AND sp.status = 'accepted'
      WHERE
        (
          p.user_id = ?
@@ -356,7 +397,7 @@ app.get('/api/posts', auth, wrap(async (req, res) => {
              AND sent.sender_id = ?
          )
        )
-       OR sp.receiver_id = ?
+       OR sp.receiver_id = ? AND sp.status = 'accepted'
      ORDER BY p.created_at DESC, p.id DESC`,
     [req.user.id, req.user.id, req.user.id]
   );

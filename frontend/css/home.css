@@ -574,6 +574,31 @@ main {
   line-height: 1.8;
 }
 
+.share-request-label {
+  color: #684a3b;
+  font-weight: 700;
+}
+
+.share-request-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.share-request-actions button {
+  padding: 8px 14px;
+  border: 2px solid #4e2a18;
+  border-radius: 4px;
+  background: transparent;
+  color: #4e2a18;
+  cursor: pointer;
+}
+
+.share-request-actions button:hover {
+  background: #fff8e8;
+}
+
 .share-side {
   display: flex;
   flex: 0 0 320px;
