@@ -66,8 +66,8 @@ textarea { min-height: 120px; }
 .character-page .btn { background: #684a3b; transition: box-shadow .2s; }
 .character-page .btn.glow { animation: choco-glow 1.4s ease-in-out infinite; }
 @keyframes choco-glow {
-  0%, 100% { box-shadow: 0 0 8px 2px rgba(255,214,150,.7), 0 0 16px 4px rgba(104,74,59,.5); }
-  50% { box-shadow: 0 0 20px 8px rgba(255,214,150,.95), 0 0 32px 12px rgba(104,74,59,.7); }
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(255,255,255,.7), 0 0 16px 4px rgba(255,255,255,.45); }
+  50% { box-shadow: 0 0 20px 8px rgba(255,255,255,.95), 0 0 32px 12px rgba(255,255,255,.65); }
 }
 .character-page .btn { max-width: 320px; margin-left: auto; margin-right: auto; }
 @media (max-width: 600px) { .character-page .chars { gap: 6px; } }
