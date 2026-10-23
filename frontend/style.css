@@ -46,7 +46,12 @@ body { margin: 0; font-family: sans-serif; background: #fff7ee; color: #333; }
   font-weight: bold;
   cursor: pointer;
 }
-.logout-btn:hover { background: #ffe3ee; }
+.site-header-btn,
+.mypage-btn,
+.logout-btn { transition: transform 0.15s; }
+.site-header-btn:hover,
+.mypage-btn:hover,
+.logout-btn:hover { transform: scale(1.05); }
 main { position: relative; z-index: 1; }
 main { max-width: 480px; margin: 0 auto; padding: 52px 16px 24px; }
 h1 { text-align: center; font-size: 1.5rem; }
