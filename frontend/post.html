@@ -11,7 +11,10 @@
 <div class="home-header">
   <div class="choco-bar">
     <div class="header-content">
-      <a class="mypage-btn" href="mypage.html">マイページ</a>
+      <div class="header-actions">
+        <a class="mypage-btn" href="mypage.html">マイページ</a>
+        <button type="button" class="logout-btn" onclick="logout()">ログアウト</button>
+      </div>
     </div>
   </div>
   <svg class="choco-drip" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
@@ -83,6 +86,7 @@ photo.addEventListener('change', async () => {
   }
 });
 
+const submitButton = document.getElementById('submit-button');
 let isSubmitting = false;
 
 form.addEventListener('submit', (e) => {
