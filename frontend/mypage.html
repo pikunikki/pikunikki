@@ -25,105 +25,144 @@
     </svg>
   </div>
 
-  <!-- メインレイアウト -->
   <main>
-    <!-- 左カラム -->
-    <div class="column">
-      <!-- プロフィール -->
-      <section class="card profile-card">
-        <h2 class="card-title">プロフィール</h2>
-        <div class="avatar-wrapper">🍓</div>
-        <div class="user-name">なな</div>
-        <div class="user-id">ID : nouin1033</div>
-        <div class="profile-btns">
-          <button class="btn">プロフィール編集</button>
-          <button class="btn">設定</button>
-        </div>
-      </section>
+    <!-- プロフィール(キャラ表示・名前・キャラ変更) -->
+    <section class="card profile-card">
+      <div class="avatar" id="avatar"><img id="avatar-img" alt=""></div>
+      <div class="profile-body">
+        <div class="name-row"><span class="name-label">name :</span><span class="user-name" id="user-name"></span></div>
+        <div class="user-id">ID : <span id="user-id"></span></div>
+        <svg class="name-drip" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true"><path fill="#684a3b" d="M0,0 H300 V6 C285,6 282,22 270,22 C258,22 255,6 240,6 C225,6 222,18 210,18 C198,18 195,6 180,6 C165,6 162,24 150,24 C138,24 135,6 120,6 C105,6 102,16 90,16 C78,16 75,6 60,6 C45,6 42,20 30,20 C18,20 15,6 0,6 Z"/></svg>
+        <div class="change-title">キャラ変更</div>
+        <div class="char-row" id="char-row"></div>
+        <p class="msg" id="char-msg" role="status"></p>
+      </div>
+    </section>
 
-      <!-- カレンダー -->
-      <section class="card">
-        <h2 class="card-title">カレンダー</h2>
-        <div class="calendar-grid">
-          <div class="day-name">日</div><div class="day-name">月</div><div class="day-name">火</div>
-          <div class="day-name">水</div><div class="day-name">木</div><div class="day-name">金</div><div class="day-name">土</div>
-          
-          <div class="day-cell"></div><div class="day-cell"></div><div class="day-cell"></div>
-          <div class="day-cell active">1</div><div class="day-cell active">2</div><div class="day-cell active">3</div><div class="day-cell">4</div>
-          <div class="day-cell active">5</div><div class="day-cell active">6</div><div class="day-cell">7</div><div class="day-cell active">8</div>
-          <div class="day-cell active">9</div><div class="day-cell active">10</div><div class="day-cell">11</div>
-        </div>
-      </section>
-    </div>
-
-    <!-- 右カラム -->
-    <div class="column">
-      <!-- 最近の投稿 -->
-      <section class="card">
-        <h2 class="card-title">最近の投稿</h2>
-        <div class="posts-grid">
-          <div class="post-item">
-            <div class="post-img">🌳</div>
-            <div class="post-title">昨日の遠足</div>
-            <div class="post-stars">★★★★★</div>
-          </div>
-          <div class="post-item">
-            <div class="post-img">🍱</div>
-            <div class="post-title">料理で食べる</div>
-            <div class="post-stars">★★★★★</div>
-          </div>
-          <div class="post-item">
-            <div class="post-img">🍪</div>
-            <div class="post-title">クッキー作り</div>
-            <div class="post-stars">★★★★★</div>
-          </div>
-          <div class="post-item">
-            <div class="post-img">😴</div>
-            <div class="post-title">お昼寝</div>
-            <div class="post-stars">★★★★★</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 友達 -->
-      <section class="card">
+    <!-- 友達 -->
+    <section class="card friends-card">
+      <div class="friends-head">
         <h2 class="card-title">友達</h2>
-        <div class="friends-list">
-          <div class="friend-item">
-            <div class="friend-avatar">👧</div>
-            <div>
-              <div class="friend-info">なな</div>
-              <div class="friend-status">友達・近況</div>
-            </div>
-          </div>
-          <div class="friend-item">
-            <div class="friend-avatar">👩</div>
-            <div>
-              <div class="friend-info">日本さん</div>
-              <div class="friend-status">状態</div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+        <button type="button" class="pill-btn" id="add-friend-btn" aria-expanded="false">友達追加</button>
+      </div>
+
+      <div class="panel" id="add-panel" hidden>
+        <form class="search-form" id="search-form">
+          <label class="sr-only" for="search-keyword">ID</label>
+          <input type="text" id="search-keyword" placeholder="IDで探す(例: pikuchan_01)" autocomplete="off" autocapitalize="off">
+          <button type="submit" class="pill-btn">検索</button>
+        </form>
+        <ul class="people" id="search-results"></ul>
+        <p class="msg" id="search-msg" role="status"></p>
+      </div>
+
+      <div class="panel" id="requests-panel" hidden>
+        <h3 class="sub-title">届いている申請</h3>
+        <ul class="people" id="requests-list"></ul>
+      </div>
+
+      <ul class="people" id="friends-list"></ul>
+      <p class="empty" id="friends-empty" hidden>まだ友達がいません。「友達追加」から探してみよう。</p>
+    </section>
   </main>
 
-  <!-- ボトムナビゲーション -->
-  <nav class="bottom-nav">
-    <button class="nav-item active">
-      <span>📷</span>
-      <span>ホーム</span>
-    </button>
-    <button class="nav-item">
-      <span>📖</span>
-      <span>日記一覧</span>
-    </button>
-    <button class="nav-item">
-      <span>🍰</span>
-      <span>新しい日記を書く</span>
-    </button>
-  </nav>
-
 <script src="app.js"></script>
+<script>
+requireLogin();
+const $ = (id) => document.getElementById(id);
+
+const avatarOf = (id) => {
+  const c = getCharacter(id);
+  return c ? `<img src="${c.image}" alt="">` : '';
+};
+
+function showMe() {
+  const user = me();
+  if (!user) return;
+  $('user-name').textContent = user.username;
+  $('user-id').textContent = user.userId;
+  const c = getCharacter(user.character);
+  $('avatar-img').src = c ? c.image : '';
+  $('avatar').dataset.id = user.character;
+  document.querySelectorAll('#char-row .char-opt').forEach((el) => el.classList.toggle('current', el.dataset.id === user.character));
+}
+
+// ---- キャラ変更 ----
+CHARACTERS.forEach((c) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'char-opt';
+  b.dataset.id = c.id;
+  b.innerHTML = `<img src="${c.card}" alt="${c.name}">`;
+  b.onclick = () => {
+    try { setCharacter(c.id); } catch (e) { $('char-msg').textContent = e.message; return; }
+    $('char-msg').textContent = `${c.name}に変更しました`;
+    showMe();
+  };
+  $('char-row').appendChild(b);
+});
+
+// ---- 友達 ----
+const personHtml = (p, actions = '') =>
+  `<li class="person"><span class="person-avatar">${avatarOf(p.character)}</span><span class="person-name">${escapeHtml(p.username)}<small class="person-id">@${escapeHtml(p.userId || '')}</small></span>${actions}</li>`;
+
+function renderFriends() {
+  const friends = getFriends();
+  $('friends-list').innerHTML = friends.map((f) => personHtml(f)).join('');
+  $('friends-empty').hidden = friends.length > 0;
+}
+
+function renderRequests() {
+  const reqs = getFriendRequests();
+  $('requests-panel').hidden = reqs.length === 0;
+  $('requests-list').innerHTML = reqs.map((r) => personHtml(r,
+    `<span class="person-actions"><button type="button" class="pill-btn" data-accept="${r.id}">承認</button><button type="button" class="pill-btn sub" data-reject="${r.id}">拒否</button></span>`)).join('');
+}
+
+$('requests-list').addEventListener('click', (e) => {
+  const accept = e.target.dataset.accept;
+  const reject = e.target.dataset.reject;
+  const id = Number(accept || reject);
+  if (!id) return;
+  try { answerFriendRequest(id, Boolean(accept)); } catch (err) { $('search-msg').textContent = err.message; }
+  renderRequests();
+  renderFriends();
+});
+
+$('add-friend-btn').onclick = () => {
+  const open = $('add-panel').hidden;
+  $('add-panel').hidden = !open;
+  $('add-friend-btn').setAttribute('aria-expanded', String(open));
+  if (open) $('search-keyword').focus();
+};
+
+$('search-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const keyword = $('search-keyword').value.trim();
+  $('search-msg').textContent = '';
+  if (!keyword) { $('search-results').innerHTML = ''; return; }
+  const found = searchUsers(keyword);
+  $('search-results').innerHTML = found.map((u) =>
+    personHtml(u, `<span class="person-actions"><button type="button" class="pill-btn" data-send="${u.id}">申請する</button></span>`)).join('');
+  if (!found.length) $('search-msg').textContent = 'そのIDのユーザーは見つかりませんでした';
+});
+
+$('search-results').addEventListener('click', (e) => {
+  const id = Number(e.target.dataset.send);
+  if (!id) return;
+  try {
+    sendFriendRequest(id);
+    e.target.textContent = '申請済み';
+    e.target.disabled = true;
+    $('search-msg').textContent = '友達申請を送りました';
+  } catch (err) {
+    $('search-msg').textContent = err.message;
+  }
+});
+
+showMe();
+renderRequests();
+renderFriends();
+</script>
 </body>
 </html>

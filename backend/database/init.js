@@ -18,6 +18,16 @@ async function migrate(conn) {
   console.log('migrated users: added email');
 }
 
+// user_code 列がない既存DBに追加する(既存ユーザーには user<id> を振る)
+async function migrateUserCode(conn) {
+  const [cols] = await conn.query("SHOW COLUMNS FROM users LIKE 'user_code'");
+  if (cols.length) return;
+  await conn.query('ALTER TABLE users ADD COLUMN user_code VARCHAR(20) NULL AFTER username');
+  await conn.query("UPDATE users SET user_code = CONCAT('user', id) WHERE user_code IS NULL");
+  await conn.query('ALTER TABLE users MODIFY user_code VARCHAR(20) NOT NULL, ADD UNIQUE KEY uq_users_code (user_code)');
+  console.log('migrated users: added user_code');
+}
+
 (async () => {
   const conn = await mysql.createConnection({ ...dbConfig, multipleStatements: true, charset: 'utf8mb4' });
   for (const f of ['schema.sql', 'seed.sql']) {
@@ -25,5 +35,6 @@ async function migrate(conn) {
     console.log('applied', f);
   }
   await migrate(conn);
+  await migrateUserCode(conn);
   await conn.end();
 })().catch((e) => { console.error(e.message); process.exit(1); });

@@ -28,6 +28,8 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USER_ID_RE = /^[a-z0-9_]{3,20}$/; // ユーザーID: 半角英数字と_、3〜20文字(大文字小文字は区別しない)
+const normalizeUserId = (v) => (typeof v === 'string' ? v.trim().toLowerCase() : '');
 const wrap = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
 async function createSession(res, userId) {
@@ -43,7 +45,7 @@ const auth = wrap(async (req, res, next) => {
   const token = req.cookies.session;
   if (token) {
     const [rows] = await pool.query(
-      `SELECT u.id, u.username, u.character_id FROM sessions s JOIN users u ON u.id = s.user_id
+      `SELECT u.id, u.username, u.user_code, u.character_id FROM sessions s JOIN users u ON u.id = s.user_id
        WHERE s.token = ? AND s.expires_at > NOW()`, [token]);
     if (rows[0]) { req.user = rows[0]; return next(); }
   }
@@ -59,6 +61,10 @@ app.get('/api/characters', wrap(async (req, res) => {
 
 // 新規登録画面の重複チェック用
 app.get('/api/users/exists', wrap(async (req, res) => {
+  if (typeof req.query.userId === 'string') {
+    const [rows] = await pool.query('SELECT 1 FROM users WHERE user_code = ?', [normalizeUserId(req.query.userId)]);
+    return res.json({ exists: rows.length > 0 });
+  }
   const email = typeof req.query.email === 'string' ? req.query.email.trim().toLowerCase() : '';
   const [rows] = await pool.query('SELECT 1 FROM users WHERE email = ?', [email]);
   res.json({ exists: rows.length > 0 });
@@ -66,23 +72,28 @@ app.get('/api/users/exists', wrap(async (req, res) => {
 
 // 新規登録(キャラ選択まで終えた後に呼ぶ)
 app.post('/api/register', wrap(async (req, res) => {
-  const { nickname, email, password, character } = req.body || {};
-  if ([nickname, email, password, character].some((v) => typeof v !== 'string'))
+  const { nickname, userId, email, password, character } = req.body || {};
+  if ([nickname, userId, email, password, character].some((v) => typeof v !== 'string'))
     return res.status(400).json({ error: '入力が不正です' });
   const name = nickname.trim();
+  const code = normalizeUserId(userId);
   const mail = email.trim().toLowerCase();
   if (!name || name.length > 50) return res.status(400).json({ error: 'ニックネームは1〜50文字です' });
+  if (!USER_ID_RE.test(code)) return res.status(400).json({ error: 'IDは半角英数字と_で3〜20文字にしてください' });
   if (!EMAIL_RE.test(mail) || mail.length > 255) return res.status(400).json({ error: 'メールアドレスが不正です' });
   if (password.length < 4 || password.length > 72) return res.status(400).json({ error: 'パスワードが不正です' });
   const [chars] = await pool.query('SELECT id FROM characters WHERE id = ?', [character]);
   if (!chars[0]) return res.status(400).json({ error: 'キャラクターが不正です' });
   try {
-    const [r] = await pool.query('INSERT INTO users (username, email, password_hash, character_id) VALUES (?, ?, ?, ?)',
-      [name, mail, await bcrypt.hash(password, 10), character]);
+    const [r] = await pool.query('INSERT INTO users (username, user_code, email, password_hash, character_id) VALUES (?, ?, ?, ?, ?)',
+      [name, code, mail, await bcrypt.hash(password, 10), character]);
     await createSession(res, r.insertId);
     res.status(201).json({ username: name, character });
   } catch (e) {
-    if (e.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'このメールアドレスは登録済みです' });
+    if (e.code === 'ER_DUP_ENTRY') {
+      const msg = String(e.message).includes('uq_users_code') ? 'このIDは使われています' : 'このメールアドレスは登録済みです';
+      return res.status(409).json({ error: msg });
+    }
     throw e;
   }
 }));
@@ -108,12 +119,21 @@ app.post('/api/logout', wrap(async (req, res) => {
 // マイページ・ホーム用: ユーザー情報と投稿数
 app.get('/api/me', auth, wrap(async (req, res) => {
   const [[{ n }]] = await pool.query('SELECT COUNT(*) AS n FROM posts WHERE user_id = ?', [req.user.id]);
-  res.json({ username: req.user.username, character: req.user.character_id, postCount: n });
+  res.json({ username: req.user.username, userId: req.user.user_code, character: req.user.character_id, postCount: n });
+}));
+
+// キャラ変更(マイページ)
+app.put('/api/me/character', auth, wrap(async (req, res) => {
+  const character = typeof req.body?.character === 'string' ? req.body.character : '';
+  const [chars] = await pool.query('SELECT id FROM characters WHERE id = ?', [character]);
+  if (!chars[0]) return res.status(400).json({ error: 'キャラクターが不正です' });
+  await pool.query('UPDATE users SET character_id = ? WHERE id = ?', [character, req.user.id]);
+  res.json({ character });
 }));
 
 app.get('/api/friends', auth, wrap(async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT u.id, u.username
+    `SELECT u.id, u.username, u.user_code AS userId, u.character_id AS \`character\`
      FROM friendships f
      JOIN users u ON u.id = f.friend_id
      WHERE f.user_id = ?
@@ -124,26 +144,40 @@ app.get('/api/friends', auth, wrap(async (req, res) => {
   res.json(rows);
 }));
 
+// IDで友達検索(完全一致・大文字小文字は区別しない)
 app.get('/api/users/search', auth, wrap(async (req, res) => {
-  const keyword = typeof req.query.keyword === 'string'
-    ? req.query.keyword.trim()
-    : '';
-
-  if (!keyword) {
-    return res.json([]);
-  }
-
+  const code = normalizeUserId(req.query.userId);
+  if (!code) return res.json([]);
   const [rows] = await pool.query(
-    `SELECT id, username
+    `SELECT id, username, user_code AS userId, character_id AS \`character\`
      FROM users
-     WHERE id <> ?
-       AND username LIKE ?
-     ORDER BY username
-     LIMIT 20`,
-    [req.user.id, `%${keyword}%`]
+     WHERE id <> ? AND user_code = ?`,
+    [req.user.id, code]
   );
-
   res.json(rows);
+}));
+
+// 自分宛ての未承認の友達申請
+app.get('/api/friend-requests', auth, wrap(async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT fr.id, u.username, u.user_code AS userId, u.character_id AS \`character\`
+     FROM friend_requests fr
+     JOIN users u ON u.id = fr.sender_id
+     WHERE fr.receiver_id = ? AND fr.status = 'pending'
+     ORDER BY fr.created_at DESC, fr.id DESC`,
+    [req.user.id]
+  );
+  res.json(rows);
+}));
+
+app.post('/api/friend-requests/:id/reject', auth, wrap(async (req, res) => {
+  const [r] = await pool.query(
+    `UPDATE friend_requests SET status = 'rejected'
+     WHERE id = ? AND receiver_id = ? AND status = 'pending'`,
+    [Number(req.params.id), req.user.id]
+  );
+  if (!r.affectedRows) return res.status(404).json({ error: '申請が見つかりません' });
+  res.json({ ok: true });
 }));
 
 app.post('/api/friend-requests', auth, wrap(async (req, res) => {
@@ -224,6 +258,14 @@ app.post('/api/friend-requests/:id/accept', auth, wrap(async (req, res) => {
        SET status = 'accepted'
        WHERE id = ?`,
       [requestId]
+    );
+
+    // 相手からも申請していた場合は、そちらも承認済みにする
+    await conn.query(
+      `UPDATE friend_requests
+       SET status = 'accepted'
+       WHERE sender_id = ? AND receiver_id = ? AND status = 'pending'`,
+      [request.receiver_id, request.sender_id]
     );
 
     await conn.query(
