@@ -28,7 +28,9 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const USER_ID_RE = /^[a-z0-9_]{3,20}$/; // ユーザーID: 半角英数字と_、3〜20文字(大文字小文字は区別しない)
+// ユーザーIDはサーバーが自動で決める(8文字・紛らわしい文字を除いた小文字英数字。検索は大文字小文字を区別しない)
+const ID_CHARS = 'abcdefghjkmnpqrstuvwxyz23456789';
+const generateUserId = () => Array.from({ length: 8 }, () => ID_CHARS[crypto.randomInt(ID_CHARS.length)]).join('');
 const normalizeUserId = (v) => (typeof v === 'string' ? v.trim().toLowerCase() : '');
 const wrap = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
@@ -61,10 +63,6 @@ app.get('/api/characters', wrap(async (req, res) => {
 
 // 新規登録画面の重複チェック用
 app.get('/api/users/exists', wrap(async (req, res) => {
-  if (typeof req.query.userId === 'string') {
-    const [rows] = await pool.query('SELECT 1 FROM users WHERE user_code = ?', [normalizeUserId(req.query.userId)]);
-    return res.json({ exists: rows.length > 0 });
-  }
   const email = typeof req.query.email === 'string' ? req.query.email.trim().toLowerCase() : '';
   const [rows] = await pool.query('SELECT 1 FROM users WHERE email = ?', [email]);
   res.json({ exists: rows.length > 0 });
@@ -72,30 +70,31 @@ app.get('/api/users/exists', wrap(async (req, res) => {
 
 // 新規登録(キャラ選択まで終えた後に呼ぶ)
 app.post('/api/register', wrap(async (req, res) => {
-  const { nickname, userId, email, password, character } = req.body || {};
-  if ([nickname, userId, email, password, character].some((v) => typeof v !== 'string'))
+  const { nickname, email, password, character } = req.body || {};
+  if ([nickname, email, password, character].some((v) => typeof v !== 'string'))
     return res.status(400).json({ error: '入力が不正です' });
   const name = nickname.trim();
-  const code = normalizeUserId(userId);
   const mail = email.trim().toLowerCase();
   if (!name || name.length > 50) return res.status(400).json({ error: 'ニックネームは1〜50文字です' });
-  if (!USER_ID_RE.test(code)) return res.status(400).json({ error: 'IDは半角英数字と_で3〜20文字にしてください' });
   if (!EMAIL_RE.test(mail) || mail.length > 255) return res.status(400).json({ error: 'メールアドレスが不正です' });
   if (password.length < 4 || password.length > 72) return res.status(400).json({ error: 'パスワードが不正です' });
   const [chars] = await pool.query('SELECT id FROM characters WHERE id = ?', [character]);
   if (!chars[0]) return res.status(400).json({ error: 'キャラクターが不正です' });
-  try {
-    const [r] = await pool.query('INSERT INTO users (username, user_code, email, password_hash, character_id) VALUES (?, ?, ?, ?, ?)',
-      [name, code, mail, await bcrypt.hash(password, 10), character]);
-    await createSession(res, r.insertId);
-    res.status(201).json({ username: name, character });
-  } catch (e) {
-    if (e.code === 'ER_DUP_ENTRY') {
-      const msg = String(e.message).includes('uq_users_code') ? 'このIDは使われています' : 'このメールアドレスは登録済みです';
-      return res.status(409).json({ error: msg });
+  const hash = await bcrypt.hash(password, 10);
+  // IDが偶然重複したら作り直す
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = generateUserId();
+    try {
+      const [r] = await pool.query('INSERT INTO users (username, user_code, email, password_hash, character_id) VALUES (?, ?, ?, ?, ?)',
+        [name, code, mail, hash, character]);
+      await createSession(res, r.insertId);
+      return res.status(201).json({ username: name, userId: code, character });
+    } catch (e) {
+      if (e.code !== 'ER_DUP_ENTRY') throw e;
+      if (!String(e.message).includes('uq_users_code')) return res.status(409).json({ error: 'このメールアドレスは登録済みです' });
     }
-    throw e;
   }
+  throw new Error('user id generation failed');
 }));
 
 app.post('/api/login', wrap(async (req, res) => {
