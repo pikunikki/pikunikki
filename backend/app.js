@@ -54,7 +54,15 @@ const auth = wrap(async (req, res, next) => {
   res.status(401).json({ error: 'ログインが必要です' });
 });
 
-const toPost = (p) => ({ id: p.id, text: p.text, photo: p.photo_path ? '/uploads/' + p.photo_path : null, date: p.created_at });
+// exchanged / fromName: 友達と内容を交換した投稿かどうか(posts.exchanged_with に相手のニックネームが入る)
+const toPost = (p) => ({
+  id: p.id,
+  text: p.text,
+  photo: p.photo_path ? '/uploads/' + p.photo_path : null,
+  date: p.created_at,
+  exchanged: !!p.exchanged_with,
+  fromName: p.exchanged_with || null,
+});
 
 app.get('/api/characters', wrap(async (req, res) => {
   const [rows] = await pool.query('SELECT id, emoji, name FROM characters ORDER BY id');
@@ -292,6 +300,7 @@ app.post('/api/friend-requests/:id/accept', auth, wrap(async (req, res) => {
   }
 }));
 
+// 交換申請を送る(自分の未交換の投稿を、友達に)
 app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
   const postId = Number(req.params.id);
   const receiverId = Number(req.body?.receiverId);
@@ -307,12 +316,12 @@ app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
   const [posts] = await pool.query(
     `SELECT id
      FROM posts
-     WHERE id = ? AND user_id = ?`,
+     WHERE id = ? AND user_id = ? AND exchanged_with IS NULL`,
     [postId, req.user.id]
   );
 
   if (!posts[0]) {
-    return res.status(404).json({ error: '自分の投稿ではありません' });
+    return res.status(404).json({ error: '自分の投稿ではないか、すでに交換済みです' });
   }
 
   const [friends] = await pool.query(
@@ -346,60 +355,126 @@ app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
   res.status(201).json({ ok: true });
 }));
 
+// 自分宛ての未承認の交換申請(id は申請元の投稿ID)
 app.get('/api/shared-post-requests', auth, wrap(async (req, res) => {
   const [rows] = await pool.query(
     `SELECT sp.post_id AS id, sp.sender_id AS senderId,
-            u.username AS senderName, p.text, p.photo_path, p.created_at
+            u.username AS senderName, sp.created_at
      FROM shared_posts sp
-     JOIN posts p ON p.id = sp.post_id
      JOIN users u ON u.id = sp.sender_id
      WHERE sp.receiver_id = ? AND sp.status = 'pending'
      ORDER BY sp.created_at DESC, sp.post_id DESC`,
     [req.user.id]
   );
   res.json(rows.map((row) => ({
-    ...toPost(row),
+    id: row.id,
+    text: '',
+    photo: null,
+    date: row.created_at,
     senderId: row.senderId,
     senderName: row.senderName,
     isShareRequest: true,
   })));
 }));
 
+// 交換申請への返事。
+//   reject: 拒否するだけ
+//   accept: body.myPostId(自分の投稿)と申請元の投稿の「日記の文章」と「写真」を入れ替える
+//           入れ替え後は、お互い自分の元の内容は見えなくなる
 app.post('/api/shared-post-requests/:id/:action', auth, wrap(async (req, res) => {
-  const action = req.params.action;
-  if (action !== 'accept' && action !== 'reject') {
-    return res.status(400).json({ error: '処理が不正です' });
+  const { action } = req.params;
+  const senderPostId = Number(req.params.id);
+
+  if (action === 'reject') {
+    const [result] = await pool.query(
+      `UPDATE shared_posts SET status = 'rejected'
+       WHERE post_id = ? AND receiver_id = ? AND status = 'pending'`,
+      [senderPostId, req.user.id]
+    );
+    if (!result.affectedRows) return res.status(404).json({ error: '交換申請が見つかりません' });
+    return res.json({ ok: true });
   }
-  const status = action === 'accept' ? 'accepted' : 'rejected';
-  const [result] = await pool.query(
-    `UPDATE shared_posts
-     SET status = ?
-     WHERE post_id = ? AND receiver_id = ? AND status = 'pending'`,
-    [status, Number(req.params.id), req.user.id]
-  );
-  if (!result.affectedRows) return res.status(404).json({ error: '交換申請が見つかりません' });
-  res.json({ ok: true });
+
+  if (action !== 'accept') return res.status(400).json({ error: '処理が不正です' });
+
+  const myPostId = Number(req.body?.myPostId);
+  if (!Number.isInteger(myPostId) || myPostId <= 0) {
+    return res.status(400).json({ error: '交換に出す投稿を選んでください' });
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // 自分宛ての未承認の申請か確認
+    const [reqs] = await conn.query(
+      `SELECT 1 FROM shared_posts
+       WHERE post_id = ? AND receiver_id = ? AND status = 'pending' FOR UPDATE`,
+      [senderPostId, req.user.id]
+    );
+    if (!reqs[0]) {
+      await conn.rollback();
+      return res.status(404).json({ error: '交換申請が見つかりません' });
+    }
+
+    // 2つの投稿をIDの小さい順にロック(デッドロック防止)
+    const [posts] = await conn.query(
+      `SELECT p.id, p.user_id, p.text, p.photo_path, p.exchanged_with, u.username
+       FROM posts p JOIN users u ON u.id = p.user_id
+       WHERE p.id IN (?, ?) ORDER BY p.id FOR UPDATE`,
+      [senderPostId, myPostId]
+    );
+    const theirs = posts.find((p) => p.id === senderPostId);
+    const mine = posts.find((p) => p.id === myPostId);
+
+    if (!theirs || !mine || mine.user_id !== req.user.id || theirs.user_id === req.user.id) {
+      await conn.rollback();
+      return res.status(403).json({ error: '自分の投稿を選んでください' });
+    }
+    if (theirs.exchanged_with || mine.exchanged_with) {
+      await conn.rollback();
+      return res.status(409).json({ error: 'すでに交換済みの投稿です' });
+    }
+
+    // 入れ替え: 相手の投稿には自分の内容、自分の投稿には相手の内容
+    await conn.query(
+      `UPDATE posts SET text = ?, photo_path = ?, exchanged_with = ? WHERE id = ?`,
+      [mine.text, mine.photo_path, mine.username, theirs.id]
+    );
+    await conn.query(
+      `UPDATE posts SET text = ?, photo_path = ?, exchanged_with = ? WHERE id = ?`,
+      [theirs.text, theirs.photo_path, theirs.username, mine.id]
+    );
+
+    // この申請を承認済みに。内容が変わるので、2つの投稿に残っている他の保留中の申請は拒否にする
+    await conn.query(
+      `UPDATE shared_posts SET status = 'accepted'
+       WHERE post_id = ? AND receiver_id = ? AND status = 'pending'`,
+      [senderPostId, req.user.id]
+    );
+    await conn.query(
+      `UPDATE shared_posts SET status = 'rejected'
+       WHERE post_id IN (?, ?) AND status = 'pending'`,
+      [senderPostId, myPostId]
+    );
+
+    await conn.commit();
+    res.json({ ok: true });
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
+  }
 }));
 
+// 自分の投稿だけを返す(交換した日は、相手の内容に入れ替わった状態で返る)
 app.get('/api/posts', auth, wrap(async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT DISTINCT p.*
-     FROM posts p
-     LEFT JOIN shared_posts sp
-       ON sp.post_id = p.id AND sp.status = 'accepted'
-     WHERE
-       (
-         p.user_id = ?
-         AND NOT EXISTS (
-           SELECT 1
-           FROM shared_posts sent
-           WHERE sent.post_id = p.id
-             AND sent.sender_id = ?
-         )
-       )
-       OR sp.receiver_id = ? AND sp.status = 'accepted'
-     ORDER BY p.created_at DESC, p.id DESC`,
-    [req.user.id, req.user.id, req.user.id]
+    `SELECT * FROM posts
+     WHERE user_id = ?
+     ORDER BY created_at DESC, id DESC`,
+    [req.user.id]
   );
 
   res.json(rows.map(toPost));

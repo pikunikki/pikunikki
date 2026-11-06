@@ -25,11 +25,12 @@ CREATE TABLE IF NOT EXISTS sessions (
 ) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS posts (
-  id         INT AUTO_INCREMENT PRIMARY KEY,
-  user_id    INT NOT NULL,
-  text       TEXT NOT NULL,
-  photo_path VARCHAR(255) NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  user_id        INT NOT NULL,
+  text           TEXT NOT NULL,
+  photo_path     VARCHAR(255) NULL,
+  exchanged_with VARCHAR(50) NULL,                 -- 交換した相手のニックネーム(NULL=未交換)
+  created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_posts_user_created (user_id, created_at),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8mb4;

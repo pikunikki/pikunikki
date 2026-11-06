@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ホーム - pikunikki</title>
 <link rel="stylesheet" href="css/home.css">
+<style>
+  /* 交換機能まわりの追加スタイル */
+  .exchanged-label { font-size: 0.8rem; opacity: 0.7; margin: 0.25rem 0; }
+  #friend-list .pick-post { display: block; width: 100%; text-align: left; margin: 0.25rem 0; }
+  #friend-list .pick-post img { width: 48px; height: 48px; object-fit: cover; vertical-align: middle; margin-right: 0.5rem; }
+</style>
 </head>
 <body>
 
@@ -152,7 +158,7 @@
     <div id="friend-picker" class="friend-picker" hidden>
       <div class="friend-picker-panel">
         <button id="close-friend-picker" type="button">×</button>
-        <h2>交換する友達を選ぶ</h2>
+        <h2 id="friend-picker-title">交換する友達を選ぶ</h2>
         <div id="friend-list"></div>
         <p id="friend-message" role="status"></p>
       </div>
@@ -168,7 +174,8 @@
   const now = new Date();
   let viewYear = now.getFullYear();
   let viewMonth = now.getMonth();
-  const byDate = {};
+  const byDate = {};          // 日付 → その日の投稿(+交換申請)
+  const postedDays = new Set(); // 自分が投稿した日(交換申請は含めない)
   const keyOf = (y, m, d) => `${y}-${m + 1}-${d}`;
 
   function renderCalendar() {
@@ -197,16 +204,58 @@
   }
 
   let selectedDay = null;
-  let selectedPostId = null;  
+  let selectedPostId = null;
 
+  // ---- 交換を申し込む(自分の投稿を友達に送る) ----
   function openFriendPicker(postId) {
     selectedPostId = Number(postId);
     if (!selectedPostId) {
       $('share-message').textContent = '交換する投稿がありません';
       return;
     }
+    $('friend-picker-title').textContent = '交換する友達を選ぶ';
     $('friend-picker').hidden = false;
     loadFriends();
+  }
+
+  // ---- 交換申請を承認する(自分のどの日と交換するかを選ぶ) ----
+  function openMyPostPicker(requestId) {
+    const mine = getPosts().filter(p => !p.exchanged && (p.photo || p.text));
+    const list = $('friend-list');
+
+    $('friend-picker-title').textContent = '交換に出す日を選ぶ';
+    $('friend-picker').hidden = false;
+    list.innerHTML = '';
+    $('friend-message').textContent = mine.length
+      ? '選んだ日の写真と日記が相手のものと入れ替わります。元には戻せません'
+      : '交換できる投稿がありません';
+
+    mine.forEach(p => {
+      const d = new Date(p.date);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pick-post';
+
+      if (p.photo) {
+        const img = document.createElement('img');
+        img.src = p.photo;
+        img.alt = '';
+        btn.appendChild(img);
+      }
+      const label = document.createElement('span');
+      label.textContent = `${d.getMonth() + 1}/${d.getDate()} ${(p.text || '').slice(0, 15)}`;
+      btn.appendChild(label);
+
+      btn.addEventListener('click', () => {
+        try {
+          answerShareRequest(requestId, 'accept', p.id);
+          location.reload();
+        } catch (error) {
+          $('friend-message').textContent = error.message;
+        }
+      });
+      list.appendChild(btn);
+    });
   }
 
   function showDay(d) {
@@ -217,48 +266,80 @@
 
     $('book-date').textContent =
       `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+    $('share-message').textContent = '';
 
-    $('book-content').innerHTML = list.length
-    ? list.map(post => `
-        <article class="book-post">
-          ${post.photo ? `<img src="${post.photo}" alt="">` : ''}
-          <p></p>
-          ${post.isShareRequest ? `
-            <p class="share-request-label">${post.senderName}さんから交換申請</p>
-            <div class="share-request-actions">
-              <button type="button" class="accept-share" data-post-id="${post.id}">交換を承認</button>
-              <button type="button" class="reject-share" data-post-id="${post.id}">拒否</button>
-            </div>
-          ` : ''}
-        </article>
-      `).join('')
-    : '<p class="book-empty">この日の投稿はありません</p>';
+    const content = $('book-content');
+    content.innerHTML = '';
 
-    $('book-content').querySelectorAll('p').forEach((element, index) => {
-          element.textContent = list[index]?.text || '';
+    if (!list.length) {
+      const empty = document.createElement('p');
+      empty.className = 'book-empty';
+      empty.textContent = 'この日の投稿はありません';
+      content.appendChild(empty);
+    }
+
+    list.forEach(post => {
+      const article = document.createElement('article');
+      article.className = 'book-post';
+
+      if (post.photo) {
+        const img = document.createElement('img');
+        img.src = post.photo;
+        img.alt = '';
+        article.appendChild(img);
+      }
+
+      if (post.isShareRequest) {
+        // 交換申請(承認 or 拒否)
+        const label = document.createElement('p');
+        label.className = 'share-request-label';
+        label.textContent = `${post.senderName}さんから交換申請`;
+        article.appendChild(label);
+
+        const actions = document.createElement('div');
+        actions.className = 'share-request-actions';
+
+        const accept = document.createElement('button');
+        accept.type = 'button';
+        accept.className = 'accept-share';
+        accept.textContent = '交換を承認';
+        accept.addEventListener('click', () => openMyPostPicker(post.id));
+
+        const reject = document.createElement('button');
+        reject.type = 'button';
+        reject.className = 'reject-share';
+        reject.textContent = '拒否';
+        reject.addEventListener('click', () => {
+          try {
+            answerShareRequest(post.id, 'reject');
+            location.reload();
+          } catch (error) {
+            $('share-message').textContent = error.message;
+          }
         });
 
-        $('book-content').querySelectorAll('.accept-share, .reject-share').forEach(button => {
-          button.addEventListener('click', () => {
-            const action = button.classList.contains('accept-share') ? 'accept' : 'reject';
-            try {
-              answerShareRequest(Number(button.dataset.postId), action);
-              const listForDay = byDate[keyOf(viewYear, viewMonth, selectedDay)] || [];
-              const post = listForDay.find(item => item.id === Number(button.dataset.postId));
-              if (action === 'accept' && post) post.isShareRequest = false;
-              const index = listForDay.findIndex(item => item.id === Number(button.dataset.postId));
-              if (action === 'reject' || index < 0) {
-                if (index >= 0) listForDay.splice(index, 1);
-              }
-              renderCalendar();
-              showDay(selectedDay);
-            } catch (error) {
-              $('share-message').textContent = error.message;
-            }
-          });
-        });
+        actions.appendChild(accept);
+        actions.appendChild(reject);
+        article.appendChild(actions);
+      } else {
+        // 通常の投稿(交換した日は相手の内容が入っている)
+        if (post.exchanged) {
+          const ex = document.createElement('p');
+          ex.className = 'exchanged-label';
+          ex.textContent = `${post.fromName}さんと交換した日`;
+          article.appendChild(ex);
+        }
+        const text = document.createElement('p');
+        text.className = 'post-text';
+        text.textContent = post.text || '';
+        article.appendChild(text);
+      }
 
-    $('book-actions').hidden = !list.some(post => !post.isShareRequest);
+      content.appendChild(article);
+    });
+
+    // 交換できる(自分の・未交換の)投稿がある日だけ「友達と交換する」を出す
+    $('book-actions').hidden = !list.some(post => !post.isShareRequest && !post.exchanged);
     $('day-modal').hidden = false;
   }
 
@@ -280,8 +361,6 @@
       message.textContent = '交換できる友達がいません';
       return;
     }
-
-    
 
     result.data.forEach(friend => {
       const button = document.createElement('button');
@@ -310,25 +389,22 @@
       return;
     }
 
-    Object.keys(byDate).forEach(key => {
-      byDate[key] = byDate[key].filter(post => post.id !== selectedPostId);
-      if (!byDate[key].length) delete byDate[key];
-    });
-    renderCalendar();
     $('friend-picker').hidden = true;
     $('friend-list').innerHTML = '';
     $('friend-message').textContent = '';
-    $('share-message').textContent = '投稿を交換しました';
-    showDay(selectedDay);
+    $('share-message').textContent = '交換申請を送りました。相手が承認すると、お互いの写真と日記が入れ替わります';
     selectedPostId = null;
   }
 
   $('share-post').addEventListener('click', () => {
     const list = byDate[keyOf(viewYear, viewMonth, selectedDay)] || [];
-    if (list.length) openFriendPicker(list[0].id);
+    const target = list.find(p => !p.isShareRequest && !p.exchanged);
+    if (!target) {
+      $('share-message').textContent = '交換できる投稿がありません';
+      return;
+    }
+    openFriendPicker(target.id);
   });
-
-
 
   function moveDay(offset) {
     const date = new Date(viewYear, viewMonth, selectedDay + offset);
@@ -376,7 +452,7 @@
   });
   renderCalendar();
 
-    // ⏱ 投稿ボタンのタイマー(今日の投稿まで、あと何時間か)
+  // ⏱ 投稿ボタンのタイマー(今日の投稿まで、あと何時間か)
   const DAY_MS = 24 * 60 * 60 * 1000;
   const CIRC = 2 * Math.PI * 54;
   const postButton = $('post-button');
@@ -385,7 +461,8 @@
     const timerEl = $('post-timer');
     const ring = $('ring-fg');
     const t = new Date();
-    const hasPostedToday = Boolean(byDate[keyOf(t.getFullYear(), t.getMonth(), t.getDate())]);
+    // 交換申請ではなく、自分の投稿があるかで判定する
+    const hasPostedToday = postedDays.has(keyOf(t.getFullYear(), t.getMonth(), t.getDate()));
 
     // 今日すでに投稿していたら「投稿済み」
     if (hasPostedToday) {
@@ -409,7 +486,6 @@
   }
   tickTimer();
   setInterval(tickTimer, 1000);
-  setInterval(tickTimer, 1000);
   $('post-button').addEventListener('click', (e) => {
     if (postButton.getAttribute('aria-disabled') === 'true') e.preventDefault();
   });
@@ -421,9 +497,14 @@
       const me = window.me();
       if (!me) { location.href = 'login.html'; return; }
 
-
       const posts = getPosts();
       const shareRequests = getShareRequests();
+
+      posts.forEach(p => {
+        const dt = new Date(p.date);
+        postedDays.add(keyOf(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+      });
+
       [...posts, ...shareRequests].forEach(p => {
         const dt = new Date(p.date);
         const k = keyOf(dt.getFullYear(), dt.getMonth(), dt.getDate());
