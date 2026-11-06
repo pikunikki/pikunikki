@@ -751,3 +751,177 @@ main {
     max-height: 320px;
   }
 }
+
+/* =========================================================
+   日記ページを「本」っぽくする(home.css のあとに読み込む)
+   - 金のふち = 本の表紙、点線 = ステッチ(home.css のまま活かす)
+   - 紙の質感・背表紙の影・下に重なったページの縁・罫線
+   - 背表紙は固定。紙(ページ)だけが背表紙を軸にめくれる
+   - 左下 / 右下のめくれた角(押すと 前の日 / 次の日 へめくる)
+   ========================================================= */
+
+/* ---- ページ本体 ---- */
+.day-modal .book-column .book-page {
+  padding-bottom: 52px;               /* めくれた角と文章が重ならないように */
+  background-color: #fff8e8;
+  background-image:
+    /* 背表紙側(左)の影 */
+    linear-gradient(to right, rgba(90, 58, 42, .24) 0, rgba(90, 58, 42, .09) 16px, rgba(90, 58, 42, 0) 46px),
+    /* 右端のわずかな陰 */
+    linear-gradient(to left, rgba(90, 58, 42, .07) 0, rgba(90, 58, 42, 0) 24px);
+  border-radius: 6px 14px 14px 6px;
+  /* 下に重なっているページの縁 + 全体の影 */
+  box-shadow:
+    1px 1px 0 #fff8e8, 2px 2px 0 #e6d3a5,
+    3px 3px 0 #fff8e8, 4px 4px 0 #dcc28a,
+    5px 5px 0 #fff8e8, 6px 6px 0 #d4a359,
+    10px 14px 24px rgba(58, 27, 14, .4);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+}
+
+/* 日付 */
+.day-modal .book-date {
+  margin: 0;
+  padding-bottom: .4em;
+  border-bottom: 1px solid rgba(139, 100, 60, .35);
+  letter-spacing: .08em;
+  font-size: 18px;
+}
+
+/* 日記の文章に罫線を引く */
+.day-modal #book-content .post-text {
+  line-height: 1.9;
+  background-image: linear-gradient(transparent calc(1.9em - 1px), rgba(139, 100, 60, .28) 0);
+  background-size: 100% 1.9em;
+}
+
+/* ---- めくれた角 ---- */
+.day-modal .book-page .page-curl {
+  all: unset;                         /* ボタンの標準装飾を打ち消す */
+  position: absolute;
+  bottom: 0;
+  width: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  cursor: pointer;
+  z-index: 3;
+  transition: width .25s ease, height .25s ease;
+}
+.day-modal .book-page .page-curl-next { right: 0; filter: drop-shadow(-2px -2px 2px rgba(60, 40, 10, .35)); }
+.day-modal .book-page .page-curl-prev { left: 0;  filter: drop-shadow(2px -2px 2px rgba(60, 40, 10, .35)); }
+
+.day-modal .book-page .page-curl:hover,
+.day-modal .book-page .page-curl:focus-visible {
+  width: 80px;
+  height: 80px;
+}
+.day-modal .book-page .page-curl:focus-visible {
+  outline: 2px solid #8b643c;
+  outline-offset: -2px;
+}
+
+.day-modal .book-page .page-curl::before,
+.day-modal .book-page .page-curl::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* 右下: めくれて見える「次のページ」と、折り返した紙の裏側 */
+.day-modal .book-page .page-curl-next::before {
+  background: linear-gradient(135deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, 0) 65%), #efe3c6;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+.day-modal .book-page .page-curl-next::after {
+  background: linear-gradient(315deg, #cdbb8f 0%, #fffdf7 35%, #f3e9d0 100%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* 左下: 左右反転 */
+.day-modal .book-page .page-curl-prev::before {
+  background: linear-gradient(225deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, 0) 65%), #efe3c6;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+.day-modal .book-page .page-curl-prev::after {
+  background: linear-gradient(45deg, #cdbb8f 0%, #fffdf7 35%, #f3e9d0 100%);
+  clip-path: polygon(100% 100%, 0 0, 100% 0);
+}
+
+/* ---- 背表紙(固定) ---- */
+.day-modal .book-column { position: relative; }
+.day-modal .book-column::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: var(--page-h, 560px);       /* .book-page の実際の高さ(JSが入れる) */
+  z-index: 6;                         /* めくれる紙より手前に置く */
+  border-radius: 6px 0 0 6px;
+  background:
+    linear-gradient(to right, rgba(255, 255, 255, .18) 0, rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, .25) 100%),
+    linear-gradient(to right, #4e2a18, #684a3b 55%, #3a1b0e);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, .4);
+  pointer-events: none;
+}
+
+/* ---- めくれる紙(JS が一時的に作る) ---- */
+.page-sheet {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  transform-origin: left center;      /* 背表紙側を軸にする */
+}
+.page-sheet > div {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+/* 紙の表(めくる前のページそのもの) */
+.page-sheet .sheet-front > .book-page {
+  width: 100%;
+  height: 100%;
+  flex: none;
+  margin: 0;
+  box-shadow: none;
+}
+.page-sheet .page-curl,
+.page-sheet .book-close { visibility: hidden; }
+/* 紙の裏 */
+.page-sheet .sheet-back {
+  transform: rotateY(180deg);
+  border: 8px solid #d4a359;
+  border-radius: 14px 6px 6px 14px;
+  background:
+    linear-gradient(to left, rgba(90, 58, 42, .24) 0, rgba(90, 58, 42, .09) 16px, rgba(90, 58, 42, 0) 46px),
+    #fff8e8;
+}
+
+/* 次の日: 今のページが左へめくれていき、下から次のページが現れる */
+.page-sheet.sheet-next { animation: sheetTurn .8s cubic-bezier(.5, .05, .3, 1) forwards; }
+/* 前の日: 前のページが左から戻ってきて、今のページに重なる */
+.page-sheet.sheet-prev { animation: sheetTurn .8s cubic-bezier(.5, .05, .3, 1) reverse forwards; }
+/* 前の日のとき、戻ってくる紙の下に残しておく「今のページ」 */
+.page-sheet.sheet-under { z-index: 4; }
+
+.page-sheet.sheet-next > div { animation: sheetShade .8s linear forwards; }
+.page-sheet.sheet-prev > div { animation: sheetShade .8s linear reverse forwards; }
+
+@keyframes sheetTurn {
+  from { transform: perspective(1800px) rotateY(0); }
+  to   { transform: perspective(1800px) rotateY(-160deg); }
+}
+/* めくれるほど少し暗くなり、最後に薄れて消える */
+@keyframes sheetShade {
+  0%   { opacity: 1; filter: brightness(1); }
+  50%  { opacity: 1; filter: brightness(.85); }
+  75%  { opacity: 1; filter: brightness(.85); }
+  100% { opacity: 0; filter: brightness(.85); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-sheet { display: none; }
+  .day-modal .book-page .page-curl { transition: none; }
+}

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ホーム - pikunikki</title>
 <link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/book.css">
 <style>
   /* 交換機能まわりの追加スタイル */
   .exchanged-label { font-size: 0.8rem; opacity: 0.7; margin: 0.25rem 0; }
@@ -139,10 +140,9 @@
       <p id="book-date" class="book-date"></p>
       <div id="book-content"></div>
 
-      <div class="book-navigation">
-        <button id="previous-day" type="button">‹ 前の日</button>
-        <button id="next-day" type="button">次の日 ›</button>
-      </div>
+      <!-- ページの角(左下=前の日 / 右下=次の日)。押すとめくれる -->
+      <button id="previous-day" class="page-curl page-curl-prev" type="button" aria-label="前の日" title="前の日"></button>
+      <button id="next-day" class="page-curl page-curl-next" type="button" aria-label="次の日" title="次の日"></button>
     </div>
 
     <div id="book-actions" class="book-actions" hidden>
@@ -319,7 +319,15 @@
     // 交換できる(自分の・未交換の)投稿がある日だけ「友達と交換する」を出す
     $('book-actions').hidden = !list.some(post => !post.isShareRequest && !post.exchanged);
     $('day-modal').hidden = false;
+    syncSpine();
   }
+
+  // 背表紙の高さを、ページの実際の高さに合わせる
+  function syncSpine() {
+    const page = document.querySelector('.book-page');
+    document.querySelector('.book-column').style.setProperty('--page-h', page.offsetHeight + 'px');
+  }
+  window.addEventListener('resize', syncSpine);
 
   function loadFriends() {
     const result = api('GET', '/api/friends');
@@ -395,8 +403,84 @@
     showDay(selectedDay);
   }
 
-  $('previous-day').addEventListener('click', () => moveDay(-1));
-  $('next-day').addEventListener('click', () => moveDay(1));
+  // ページをめくる: 背表紙は動かさず、紙(ページの複製)だけをめくる
+  let flipping = false;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FLIP_MS = 800;
+
+  // いまのページを見たまま複製する(めくる紙の表になる)
+  function snapshotPage() {
+    const clone = document.querySelector('.book-page').cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    clone.querySelectorAll('button').forEach(b => { b.tabIndex = -1; });
+    clone.setAttribute('aria-hidden', 'true');
+    return clone;
+  }
+
+  // 紙を作る(withBack=true なら裏面つき。めくれて裏が見える)
+  function makeSheet(face, withBack) {
+    const page = document.querySelector('.book-page');
+    const sheet = document.createElement('div');
+    sheet.className = 'page-sheet';
+    sheet.style.left = page.offsetLeft + 'px';
+    sheet.style.top = page.offsetTop + 'px';
+    sheet.style.width = page.offsetWidth + 'px';
+    sheet.style.height = page.offsetHeight + 'px';
+
+    const front = document.createElement('div');
+    front.className = 'sheet-front';
+    front.appendChild(face);
+    sheet.appendChild(front);
+
+    if (withBack) {
+      const back = document.createElement('div');
+      back.className = 'sheet-back';
+      sheet.appendChild(back);
+    }
+    return sheet;
+  }
+
+  function flipDay(offset) {
+    if (flipping) return;
+    if (reduceMotion) { moveDay(offset); return; }
+    flipping = true;
+
+    const column = document.querySelector('.book-column');
+    const oldFace = snapshotPage();   // めくる前のページ
+    moveDay(offset);                  // 下のページは先に新しい日へ切り替える
+
+    const sheets = [];
+    if (offset > 0) {
+      // 次の日: 今のページがめくれて、下から次のページが現れる
+      const turning = makeSheet(oldFace, true);
+      turning.classList.add('sheet-next');
+      sheets.push(turning);
+    } else {
+      // 前の日: 今のページの上に、前のページがめくれて戻ってくる
+      const under = makeSheet(oldFace, false);
+      under.classList.add('sheet-under');
+      const turning = makeSheet(snapshotPage(), true);
+      turning.classList.add('sheet-prev');
+      sheets.push(under, turning);
+    }
+    sheets.forEach(s => column.appendChild(s));
+
+    setTimeout(() => {
+      sheets.forEach(s => s.remove());
+      flipping = false;
+    }, FLIP_MS + 40);
+  }
+
+  $('previous-day').addEventListener('click', () => flipDay(-1));
+  $('next-day').addEventListener('click', () => flipDay(1));
+
+  // キーボードの ← → でもめくれる
+  document.addEventListener('keydown', e => {
+    if ($('day-modal').hidden || !$('friend-picker').hidden) return;
+    if (e.key === 'ArrowLeft') flipDay(-1);
+    if (e.key === 'ArrowRight') flipDay(1);
+  });
 
   $('close-day-modal').addEventListener('click', () => {
     $('day-modal').hidden = true;
