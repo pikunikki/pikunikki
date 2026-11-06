@@ -129,11 +129,10 @@ const getShareRequests = () => {
 // 交換申請への返事。
 //   requestId: 申請元の投稿ID(getShareRequests() の id)
 //   action: 'accept' | 'reject'
-//   myPostId: accept のとき、自分が交換に出す投稿のID
-const answerShareRequest = (requestId, action, myPostId) => {
+// accept すると、申請元の投稿と同じ日の自分の投稿と内容(写真+日記)が入れ替わる
+const answerShareRequest = (requestId, action) => {
   if (DEMO_MODE) return;
-  const body = action === 'accept' ? { myPostId } : undefined;
-  const r = api('POST', `/api/shared-post-requests/${requestId}/${action}`, body);
+  const r = api('POST', `/api/shared-post-requests/${requestId}/${action}`);
   if (!r.ok) throw new Error((r.data && r.data.error) || '交換申請の処理に失敗しました');
 };
 

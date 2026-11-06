@@ -8,8 +8,7 @@
 <style>
   /* 交換機能まわりの追加スタイル */
   .exchanged-label { font-size: 0.8rem; opacity: 0.7; margin: 0.25rem 0; }
-  #friend-list .pick-post { display: block; width: 100%; text-align: left; margin: 0.25rem 0; }
-  #friend-list .pick-post img { width: 48px; height: 48px; object-fit: cover; vertical-align: middle; margin-right: 0.5rem; }
+  .exchange-note { font-size: 0.8rem; opacity: 0.7; margin: 0.25rem 0; }
 </style>
 </head>
 <body>
@@ -218,46 +217,6 @@
     loadFriends();
   }
 
-  // ---- 交換申請を承認する(自分のどの日と交換するかを選ぶ) ----
-  function openMyPostPicker(requestId) {
-    const mine = getPosts().filter(p => !p.exchanged && (p.photo || p.text));
-    const list = $('friend-list');
-
-    $('friend-picker-title').textContent = '交換に出す日を選ぶ';
-    $('friend-picker').hidden = false;
-    list.innerHTML = '';
-    $('friend-message').textContent = mine.length
-      ? '選んだ日の写真と日記が相手のものと入れ替わります。元には戻せません'
-      : '交換できる投稿がありません';
-
-    mine.forEach(p => {
-      const d = new Date(p.date);
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'pick-post';
-
-      if (p.photo) {
-        const img = document.createElement('img');
-        img.src = p.photo;
-        img.alt = '';
-        btn.appendChild(img);
-      }
-      const label = document.createElement('span');
-      label.textContent = `${d.getMonth() + 1}/${d.getDate()} ${(p.text || '').slice(0, 15)}`;
-      btn.appendChild(label);
-
-      btn.addEventListener('click', () => {
-        try {
-          answerShareRequest(requestId, 'accept', p.id);
-          location.reload();
-        } catch (error) {
-          $('friend-message').textContent = error.message;
-        }
-      });
-      list.appendChild(btn);
-    });
-  }
-
   function showDay(d) {
     selectedDay = d;
 
@@ -277,6 +236,9 @@
       empty.textContent = 'この日の投稿はありません';
       content.appendChild(empty);
     }
+
+    // 承認できるのは、同じ日に自分の(未交換の)投稿がある場合だけ
+    const canExchange = list.some(p => !p.isShareRequest && !p.exchanged);
 
     list.forEach(post => {
       const article = document.createElement('article');
@@ -303,7 +265,16 @@
         accept.type = 'button';
         accept.className = 'accept-share';
         accept.textContent = '交換を承認';
-        accept.addEventListener('click', () => openMyPostPicker(post.id));
+        accept.disabled = !canExchange;
+        accept.addEventListener('click', () => {
+          if (!confirm('この日の写真と日記が相手のものと入れ替わります。元には戻せません。よろしいですか？')) return;
+          try {
+            answerShareRequest(post.id, 'accept');
+            location.reload();
+          } catch (error) {
+            $('share-message').textContent = error.message;
+          }
+        });
 
         const reject = document.createElement('button');
         reject.type = 'button';
@@ -321,6 +292,13 @@
         actions.appendChild(accept);
         actions.appendChild(reject);
         article.appendChild(actions);
+
+        if (!canExchange) {
+          const note = document.createElement('p');
+          note.className = 'exchange-note';
+          note.textContent = 'この日のあなたの投稿がないため、承認できません';
+          article.appendChild(note);
+        }
       } else {
         // 通常の投稿(交換した日は相手の内容が入っている)
         if (post.exchanged) {
@@ -392,7 +370,7 @@
     $('friend-picker').hidden = true;
     $('friend-list').innerHTML = '';
     $('friend-message').textContent = '';
-    $('share-message').textContent = '交換申請を送りました。相手が承認すると、お互いの写真と日記が入れ替わります';
+    $('share-message').textContent = '交換申請を送りました。相手が同じ日の投稿と交換すると、お互いの写真と日記が入れ替わります';
     selectedPostId = null;
   }
 

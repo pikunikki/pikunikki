@@ -359,18 +359,19 @@ app.post('/api/posts/:id/share', auth, wrap(async (req, res) => {
 app.get('/api/shared-post-requests', auth, wrap(async (req, res) => {
   const [rows] = await pool.query(
     `SELECT sp.post_id AS id, sp.sender_id AS senderId,
-            u.username AS senderName, sp.created_at
+            u.username AS senderName, p.created_at AS postDate
      FROM shared_posts sp
      JOIN users u ON u.id = sp.sender_id
+     JOIN posts p ON p.id = sp.post_id
      WHERE sp.receiver_id = ? AND sp.status = 'pending'
-     ORDER BY sp.created_at DESC, sp.post_id DESC`,
+     ORDER BY p.created_at DESC, sp.post_id DESC`,
     [req.user.id]
   );
   res.json(rows.map((row) => ({
     id: row.id,
     text: '',
     photo: null,
-    date: row.created_at,
+    date: row.postDate, // 交換に出された投稿の日(同じ日の自分の投稿と交換する)
     senderId: row.senderId,
     senderName: row.senderName,
     isShareRequest: true,
@@ -379,7 +380,7 @@ app.get('/api/shared-post-requests', auth, wrap(async (req, res) => {
 
 // 交換申請への返事。
 //   reject: 拒否するだけ
-//   accept: body.myPostId(自分の投稿)と申請元の投稿の「日記の文章」と「写真」を入れ替える
+//   accept: 申請元の投稿と同じ日の自分の投稿と、「日記の文章」と「写真」を入れ替える
 //           入れ替え後は、お互い自分の元の内容は見えなくなる
 app.post('/api/shared-post-requests/:id/:action', auth, wrap(async (req, res) => {
   const { action } = req.params;
@@ -397,11 +398,6 @@ app.post('/api/shared-post-requests/:id/:action', auth, wrap(async (req, res) =>
 
   if (action !== 'accept') return res.status(400).json({ error: '処理が不正です' });
 
-  const myPostId = Number(req.body?.myPostId);
-  if (!Number.isInteger(myPostId) || myPostId <= 0) {
-    return res.status(400).json({ error: '交換に出す投稿を選んでください' });
-  }
-
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -416,6 +412,22 @@ app.post('/api/shared-post-requests/:id/:action', auth, wrap(async (req, res) =>
       await conn.rollback();
       return res.status(404).json({ error: '交換申請が見つかりません' });
     }
+
+    // 申請元の投稿と同じ日の、自分の未交換の投稿(新しい順で1件)と交換する
+    const [sameDay] = await conn.query(
+      `SELECT m.id FROM posts m
+       JOIN posts t ON t.id = ?
+       WHERE m.user_id = ? AND m.exchanged_with IS NULL
+         AND DATE(m.created_at) = DATE(t.created_at)
+       ORDER BY m.created_at DESC, m.id DESC
+       LIMIT 1`,
+      [senderPostId, req.user.id]
+    );
+    if (!sameDay[0]) {
+      await conn.rollback();
+      return res.status(409).json({ error: '同じ日にあなたの投稿がないため、承認できません' });
+    }
+    const myPostId = sameDay[0].id;
 
     // 2つの投稿をIDの小さい順にロック(デッドロック防止)
     const [posts] = await conn.query(
