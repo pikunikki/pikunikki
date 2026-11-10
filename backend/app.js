@@ -505,6 +505,19 @@ app.post('/api/posts', auth, upload.single('photo'), wrap(async (req, res) => {
   res.status(201).json(toPost(row));
 }));
 
+// 落書きした写真で、自分の投稿の写真を置き換える(フィールド名 photo)
+app.put('/api/posts/:id/photo', auth, upload.single('photo'), wrap(async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: '画像を送ってください' });
+  const [[row]] = await pool.query('SELECT * FROM posts WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+  if (!row) {
+    fs.unlink(req.file.path, () => {});
+    return res.status(404).json({ error: '投稿が見つかりません' });
+  }
+  await pool.query('UPDATE posts SET photo_path = ? WHERE id = ?', [req.file.filename, row.id]);
+  const [[updated]] = await pool.query('SELECT * FROM posts WHERE id = ?', [row.id]);
+  res.json(toPost(updated));
+}));
+
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) return res.status(400).json({ error: '画像は5MB以下にしてください' });
   console.error(err);

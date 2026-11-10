@@ -1,0 +1,317 @@
+/* =========================================
+   ピク日記 - 写真への落書き画面
+   色・ボタンは post.css(投稿画面)に合わせる
+========================================= */
+
+.post-body main.doodle-page {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 980px;
+    margin: 100px auto 0;
+    padding: 0 16px;
+    background: transparent;
+}
+
+.doodle-page h1 {
+    margin: 0 0 25px;
+    color: var(--choco-dark);
+    font-size: 1.9rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* ---- チョコのカード ---- */
+.doodle-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 26px 24px 22px;
+    border-radius: 24px;
+    background: var(--choco-dark);
+    color: var(--cream);
+    box-shadow:
+        0 15px 25px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+        inset -4px -4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.doodle-main {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+
+/* ---- 写真(キャンバス) ---- */
+.canvas-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+    padding: 14px;
+    border: 3px dashed var(--gold);
+    border-radius: 18px;
+    background: rgba(255, 248, 248, 0.08);
+}
+
+#doodle-canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    touch-action: none;
+    cursor: crosshair;
+}
+
+#doodle-canvas.eraser { cursor: cell; }
+#doodle-canvas.stamp  { cursor: copy; }
+
+.doodle-status {
+    position: absolute;
+    margin: 0;
+    color: var(--cream);
+    font-weight: 700;
+}
+.doodle-status:empty { display: none; }
+
+/* ---- 右側のスペース ---- */
+.doodle-side {
+    flex: 0 0 230px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.side-panel {
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--cream);
+    color: var(--choco-dark);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+.side-panel[hidden] { display: none; }
+
+.side-panel h2 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* カラーパレット: 外側の輪=色相、内側の四角=あざやかさ・明るさ(つまみ2つ) */
+.color-picker {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    touch-action: none;
+}
+#hue-ring { position: absolute; inset: 0; cursor: pointer; }
+#sv-box {
+    position: absolute;
+    left: 50px;
+    top: 50px;
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+    cursor: crosshair;
+}
+.knob {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+.swatches {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 12px;
+}
+.swatches figure { margin: 0; text-align: center; }
+.swatches figcaption { margin-top: 4px; font-size: 0.75rem; }
+.swatch {
+    display: block;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 3px solid var(--gold);
+    border-radius: 10px;
+}
+button.swatch { cursor: pointer; }
+
+/* スタンプ: 縦にスクロールできる */
+.stamp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 262px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.stamp-grid button {
+    aspect-ratio: 1;
+    padding: 4px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+}
+.stamp-grid button canvas { width: 100%; height: 100%; display: block; }
+.stamp-grid button.active { border-color: var(--pink); background: #ffe3ea; }
+
+.side-size label { display: block; margin: 0; font-weight: 700; font-size: 0.9rem; }
+.size-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.size-value { font-size: 0.8rem; font-weight: 700; color: var(--pink); }
+/* 実際の筆・スタンプの大きさをリアルタイムで見せる */
+.size-preview-box {
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background-color: #fff;
+    background-image:
+        linear-gradient(45deg, #f3e7e7 25%, transparent 25%, transparent 75%, #f3e7e7 75%),
+        linear-gradient(45deg, #f3e7e7 25%, transparent 25%, transparent 75%, #f3e7e7 75%);
+    background-position: 0 0, 6px 6px;
+    background-size: 12px 12px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+#size-preview { display: block; width: 100%; height: 88px; }
+.side-size input { width: 100%; accent-color: var(--pink); }
+
+/* ---- ツールバー ---- */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 248, 248, 0.16);
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--cream);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.tool-btn svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.tool-btn:hover:not(:disabled) { transform: scale(1.08); }
+.tool-btn.active {
+    background: var(--cream);
+    color: var(--choco-dark);
+}
+.tool-btn:disabled { opacity: 0.35; cursor: default; }
+
+.color-dot {
+    width: 26px;
+    height: 26px;
+    border: 3px solid var(--cream);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.style-group { gap: 4px; }
+.style-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--cream);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.style-btn svg {
+    width: 48px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+.style-btn .st-outer  { stroke-width: 6; stroke: #fff; }
+.style-btn .st-inner  { stroke: var(--pink); }
+.style-btn .st-shadow { stroke: rgba(0, 0, 0, 0.45); }
+.style-btn .st-spark  { stroke: #ffd84d; stroke-width: 2; }
+.style-btn.active { background: var(--cream); color: var(--choco-dark); }
+.style-btn.active .st-outer { stroke: var(--choco-dark); }
+
+/* ---- 保存 ---- */
+.doodle-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+.doodle-footer .error {
+    flex: 1;
+    margin: 0;
+    color: #ffb3c1;
+    font-size: 0.85rem;
+}
+.doodle-cancel {
+    color: var(--cream);
+    font-weight: 700;
+    text-decoration: underline;
+}
+.doodle-save {
+    padding: 12px 38px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--pink), #d83a56);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #8e2236, 0 8px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s;
+}
+.doodle-save:hover:not(:disabled) { transform: translateY(-2px); }
+.doodle-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 760px) {
+    .doodle-main { flex-direction: column; }
+    .doodle-side { flex-basis: auto; }
+    .canvas-wrap { min-height: 240px; }
+}
