@@ -154,6 +154,18 @@ function addPost(post) {
   if (!r.ok) throw new Error((r.data && r.data.error) || '投稿に失敗しました'); // post.html が catch して表示
 }
 
+// 落書きした写真(dataURL)で投稿の写真を置き換える。key: サーバー=投稿ID / デモ=投稿の date
+function updatePostPhoto(key, dataUrl) {
+  if (DEMO_MODE) {
+    demoSet('posts', demoGet('posts', []).map((p) => (String(p.date) === String(key) ? { ...p, photo: dataUrl } : p)));
+    return;
+  }
+  const fd = new FormData();
+  fd.append('photo', dataUrlToBlob(dataUrl), 'photo.jpg');
+  const r = api('PUT', `/api/posts/${encodeURIComponent(key)}/photo`, fd);
+  if (!r.ok) throw new Error((r.data && r.data.error) || '保存に失敗しました');
+}
+
 // ---- キャラ変更・友達 ----
 // デモモード用の登録済みユーザー(検索・申請の相手)
 const DEMO_USERS = [

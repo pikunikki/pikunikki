@@ -946,3 +946,17 @@ main {
   height: min(560px, calc(100vh - 140px));
   min-height: 360px;
 }
+
+/* 「友達と交換する」と「落書き」を横に並べる */
+.book-action-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.book-action-buttons button[hidden] { display: none; }
+.book-actions .doodle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
