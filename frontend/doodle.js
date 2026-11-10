@@ -110,9 +110,35 @@
       return;
     }
 
-    // ペンの種類ごとの太さ・透明度
-    const w = tool === 'marker' ? width * 2.2 : tool === 'pencil' ? Math.max(1, width * 0.5) : width;
-    const alpha = tool === 'marker' ? 0.5 : tool === 'pencil' ? 0.85 : 1;
+    // エンピツ: いったん別キャンバスに描き、ざらざらの紙目で削ってから重ねる
+    if (tool === 'pencil') {
+      const g = grainCanvas(c.canvas.width, c.canvas.height);
+      const gc = g.getContext('2d');
+      gc.clearRect(0, 0, g.width, g.height);
+      drawStrokeBody(gc, op);
+      applyGrain(gc, g.width, g.height);
+      c.drawImage(g, 0, 0);
+    } else {
+      drawStrokeBody(c, op);
+    }
+
+    if (style === 'sparkle') {
+      op.sparkles.forEach((s) => drawShape(c, 'sparkle', s.x, s.y, s.r, s.color));
+    }
+  }
+
+  // ペンの種類ごとの、画面上での線の太さ
+  function lineWidthOf(tool, width) {
+    if (tool === 'marker') return width * 2.2;
+    if (tool === 'pencil') return Math.max(1.5, width * 0.6);
+    if (tool === 'eraser') return width * 2;
+    return width;
+  }
+
+  function drawStrokeBody(c, op) {
+    const { pts, width, color, tool, style } = op;
+    const w = lineWidthOf(tool, width);
+    const alpha = tool === 'marker' ? 0.5 : 1;
 
     if (style === 'shadow') {
       const off = Math.max(2, w * 0.35);
@@ -122,10 +148,51 @@
       strokeWith(c, pts, w + Math.max(4, w * 0.8), '#ffffff', alpha);
     }
     strokeWith(c, pts, w, color, alpha);
+  }
 
-    if (style === 'sparkle') {
-      op.sparkles.forEach((s) => drawShape(c, 'sparkle', s.x, s.y, s.r, s.color));
+  // ---- エンピツの紙目(毎回同じ模様になるよう、固定の乱数で一度だけ作る) ----
+  let grainPattern = null;
+  const grainCanvases = {};
+  function grainCanvas(w, h) {
+    const k = w + 'x' + h;
+    if (!grainCanvases[k]) {
+      grainCanvases[k] = document.createElement('canvas');
+      grainCanvases[k].width = w;
+      grainCanvases[k].height = h;
     }
+    return grainCanvases[k];
+  }
+
+  function applyGrain(c, w, h) {
+    if (!grainPattern) {
+      const size = 160;
+      const t = document.createElement('canvas');
+      t.width = t.height = size;
+      const tc = t.getContext('2d');
+      const img = tc.createImageData(size, size);
+      let seed = 20261110;
+      const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+      // 横方向にすこし伸びた粒(紙の繊維っぽさ) + ところどころ抜ける
+      const row = new Float32Array(size);
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          row[x] = row[x] * 0.6 + rand() * 0.4;
+          const n = rand() * 0.5 + row[x] * 0.5;
+          let a = 0.3 + 0.75 * Math.pow(n, 1.3);   // 芯の濃さは残す
+          if (rand() < 0.12) a *= 0.25;            // ところどころ紙の白が抜ける
+          const i = (y * size + x) * 4;
+          img.data[i] = img.data[i + 1] = img.data[i + 2] = 0;
+          img.data[i + 3] = Math.round(Math.min(1, a) * 255);
+        }
+      }
+      tc.putImageData(img, 0, 0);
+      grainPattern = c.createPattern(t, 'repeat');
+    }
+    c.save();
+    c.globalCompositeOperation = 'destination-in';
+    c.fillStyle = grainPattern;
+    c.fillRect(0, 0, w, h);
+    c.restore();
   }
 
   // ===== スタンプの形 =====
@@ -237,7 +304,7 @@
 
     if (state.tool === 'stamp') {
       if (!state.stamp) return;
-      commit({ type: 'stamp', ...state.stamp, x: p.x, y: p.y, size: (24 + state.size * 2.2) * p.k });
+      commit({ type: 'stamp', ...state.stamp, x: p.x, y: p.y, size: stampSizeOf(state.size) * p.k });
       return;
     }
 
@@ -293,6 +360,55 @@
     });
   }
 
+  // スタンプの画面上での大きさ
+  const stampSizeOf = (size) => 24 + size * 2.2;
+
+  // ===== ふとさ / おおきさ の表示とプレビュー =====
+  const preview = $('size-preview');
+  const pc = preview.getContext('2d');
+  function updateSizePreview() {
+    const isStamp = state.tool === 'stamp';
+    $('size-label').textContent = isStamp ? 'おおきさ' : 'ふとさ';
+
+    // プレビューは画面と同じ大きさで描く(CSSピクセル → キャンバスのピクセル)
+    const k = preview.width / preview.getBoundingClientRect().width || 1;
+    const W = preview.width, H = preview.height;
+    pc.clearRect(0, 0, W, H);
+
+    if (isStamp) {
+      const real = stampSizeOf(state.size);
+      $('size-value').textContent = Math.round(real) + 'px';
+      const fit = Math.min(real * k, H - 8); // 枠より大きいときは縮めて見せる
+      if (state.stamp) drawShape(pc, state.stamp.shape, W / 2, H / 2, fit, state.stamp.color);
+      return;
+    }
+
+    const w = lineWidthOf(state.tool, state.size);
+    $('size-value').textContent = Math.round(w) + 'px';
+    const s = state.size * k;
+    const pts = [];
+    for (let x = 18; x <= W - 18; x += 4) pts.push({ x, y: H / 2 + Math.sin((x / W) * Math.PI * 2) * 14 });
+    if (state.tool === 'eraser') {
+      // ケシゴムは消える範囲を点線の丸で
+      pc.save();
+      pc.setLineDash([4, 3]);
+      pc.lineWidth = 1.5;
+      pc.strokeStyle = '#4a2810';
+      pc.beginPath();
+      pc.arc(W / 2, H / 2, Math.min(w * k, H - 8) / 2, 0, Math.PI * 2);
+      pc.stroke();
+      pc.restore();
+      return;
+    }
+    const op = { type: 'stroke', tool: state.tool, style: state.style, color: state.color, width: s, pts, sparkles: [] };
+    if (state.style === 'sparkle') {
+      [0.25, 0.5, 0.75].forEach((t, i) => op.sparkles.push({
+        x: W * t, y: H / 2 + (i % 2 ? 16 : -16), r: s * 1.2 + 8, color: '#fff6a8',
+      }));
+    }
+    drawOp(pc, op);
+  }
+
   function commit(op) {
     ops.push(op);
     redoStack = [];
@@ -345,6 +461,7 @@
     cv.classList.toggle('stamp', tool === 'stamp');
     if (tool === 'stamp') showPanel('stamp');
     else if (!$('panel-stamp').hidden) showPanel('color');
+    updateSizePreview();
   }
 
   document.querySelectorAll('#tools [data-tool]').forEach((btn) => {
@@ -361,10 +478,12 @@
       state.style = btn.dataset.style;
       document.querySelectorAll('#styles [data-style]').forEach((b) => b.classList.toggle('active', b === btn));
       if (state.tool === 'eraser' || state.tool === 'stamp') selectTool('pen');
+      updateSizePreview();
     });
   });
 
-  $('size').addEventListener('input', () => { state.size = Number($('size').value); });
+  $('size').addEventListener('input', () => { state.size = Number($('size').value); updateSizePreview(); });
+  window.addEventListener('resize', updateSizePreview);
 
   // ===== カラーパレット(色相の輪 + あざやかさ・明るさの四角) =====
   const ring = $('hue-ring');
@@ -423,6 +542,7 @@
     $('swatch-now').style.background = state.color;
     $('swatch-old').style.background = oldColor;
     $('color-dot').style.background = state.color;
+    updateSizePreview();
   }
 
   let dragging = null;

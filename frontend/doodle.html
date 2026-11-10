@@ -77,7 +77,13 @@
                     </section>
 
                     <section class="side-panel side-size">
-                        <label for="size">ふとさ</label>
+                        <div class="size-head">
+                            <label for="size" id="size-label">ふとさ</label>
+                            <span class="size-value" id="size-value">8px</span>
+                        </div>
+                        <div class="size-preview-box">
+                            <canvas id="size-preview" width="200" height="88" aria-hidden="true"></canvas>
+                        </div>
                         <input type="range" id="size" min="1" max="60" value="8">
                     </section>
                 </aside>
