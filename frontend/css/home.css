@@ -925,3 +925,24 @@ main {
   .page-sheet { display: none; }
   .day-modal .book-page .page-curl { transition: none; }
 }
+/* =========================================================
+   本を画面の真ん中に置く
+   - 友達選択が閉じている間は .share-side を場所取りさせない
+   - 画面が低いときははみ出さず、モーダル内でスクロールできる
+   ========================================================= */
+.day-modal {
+  align-items: safe center;
+  justify-content: safe center;
+  overflow-y: auto;
+}
+.day-modal:has(#friend-picker[hidden]) .share-side {
+  display: none;
+}
+.day-modal .book-column {
+  margin-block: auto;
+}
+.day-modal .book-column .book-page {
+  flex: 0 0 auto;                     /* 縦並びの中で幅720pxが高さになってしまうのを防ぐ */
+  height: min(560px, calc(100vh - 140px));
+  min-height: 360px;
+}
