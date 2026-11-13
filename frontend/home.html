@@ -373,7 +373,30 @@
     result.data.forEach(friend => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = friend.username;
+      button.className = 'friend-option';
+
+      // 友達のアイコン(選んでいるキャラの画像)
+      const avatar = document.createElement('span');
+      avatar.className = 'friend-avatar';
+      const character = getCharacter(friend.character);
+      if (character) {
+        const img = document.createElement('img');
+        img.src = character.image;
+        img.alt = '';
+        avatar.appendChild(img);
+      }
+
+      // 名前と ID
+      const name = document.createElement('span');
+      name.className = 'friend-name';
+      name.textContent = friend.username;
+      if (friend.userId) {
+        const id = document.createElement('small');
+        id.textContent = '@' + friend.userId;
+        name.appendChild(id);
+      }
+
+      button.append(avatar, name);
       button.addEventListener('click', () => sharePost(friend.id));
       list.appendChild(button);
     });
