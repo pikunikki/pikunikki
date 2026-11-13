@@ -132,33 +132,41 @@
   <div id="day-posts"></div>
 </div>
 
-<!-- 本 --->
+<!-- 本 -->
 <div id="day-modal" class="day-modal" hidden>
-  <div class="book-column">
-    <div class="book-page">
-      <button id="close-day-modal" class="book-close" type="button">×</button>
-      <p id="book-date" class="book-date"></p>
-      <div id="book-content"></div>
+  <div class="book-spread">
 
-      <!-- ページの角(左下=前の日 / 右下=次の日)。押すとめくれる -->
-      <button id="previous-day" class="page-curl page-curl-prev" type="button" aria-label="前の日" title="前の日"></button>
-      <button id="next-day" class="page-curl page-curl-next" type="button" aria-label="次の日" title="次の日"></button>
-    </div>
+    <!-- 左側に少しだけ見える前のページ -->
+    <button id="previous-page-area" class="book-left-page" type="button"
+            aria-label="前の日へ" title="前の日へ">
+      <span class="left-page-hint">前の日</span>
+    </button>
 
-    <div id="book-actions" class="book-actions" hidden>
-      <div class="book-action-buttons">
-        <button id="share-post" type="button">
-          友達と交換する
-        </button>
-        <button id="doodle-post" class="doodle-btn" type="button">
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-            <path d="M20.7 2.3a1 1 0 0 0-1.4 0L9.6 12l2.4 2.4 9.7-9.7a1 1 0 0 0 0-1.4z" fill="currentColor"/>
-            <path d="M8.2 13.4C6 13.4 4.6 15 4.6 16.8c0 1.2-.7 2-1.6 2.4 2.8 1.2 7.2.6 8.2-2.2.5-1.4-.2-3.6-3-3.6z" fill="currentColor"/>
-          </svg>
-          落書き
-        </button>
+    <!-- メインの日記ページ -->
+    <div class="book-column">
+      <div class="book-page">
+        <button id="close-day-modal" class="book-close" type="button">×</button>
+        <p id="book-date" class="book-date"></p>
+        <div id="book-content"></div>
+
+        <!-- 右下の角を押すと次の日へ -->
+        <button id="next-day" class="page-curl page-curl-next" type="button"
+                aria-label="次の日" title="次の日"></button>
       </div>
-      <p id="share-message" class="share-message" role="status"></p>
+
+      <div id="book-actions" class="book-actions" hidden>
+        <div class="book-action-buttons">
+          <button id="share-post" type="button">友達と交換する</button>
+          <button id="doodle-post" class="doodle-btn" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M20.7 2.3a1 1 0 0 0-1.4 0L9.6 12l2.4 2.4 9.7-9.7a1 1 0 0 0 0-1.4z" fill="currentColor"/>
+              <path d="M8.2 13.4C6 13.4 4.6 15 4.6 16.8c0 1.2-.7 2-1.6 2.4 2.8 1.2 7.2.6 8.2-2.2.5-1.4-.2-3.6-3-3.6z" fill="currentColor"/>
+            </svg>
+            落書き
+          </button>
+        </div>
+        <p id="share-message" class="share-message" role="status"></p>
+      </div>
     </div>
   </div>
 
@@ -404,7 +412,6 @@
     }
     openFriendPicker(target.id);
   });
-
   // 写真への落書き画面へ(サーバー=投稿ID / デモ=投稿の date で投稿を指定)
   $('doodle-post').addEventListener('click', () => {
     const list = byDate[keyOf(viewYear, viewMonth, selectedDay)] || [];
@@ -438,6 +445,7 @@
     clone.setAttribute('aria-hidden', 'true');
     return clone;
   }
+  
 
   // 紙を作る(withBack=true なら裏面つき。めくれて裏が見える)
   function makeSheet(face, withBack) {
@@ -493,7 +501,7 @@
     }, FLIP_MS + 40);
   }
 
-  $('previous-day').addEventListener('click', () => flipDay(-1));
+  $('previous-page-area').addEventListener('click', () => flipDay(-1));
   $('next-day').addEventListener('click', () => flipDay(1));
 
   // キーボードの ← → でもめくれる

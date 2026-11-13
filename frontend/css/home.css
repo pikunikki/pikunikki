@@ -1,5 +1,6 @@
 /* =========================================
-   ピク日記 ホーム画面
+   ピク日記 ホーム画面(ヘッダー・投稿ボタン・カレンダー)
+   日記の「本」は book.css に分けてあります
    ========================================= */
 
 /* ===== 色の設定(ここを変えると全体の色が変わる) ===== */
@@ -61,21 +62,13 @@ body {
   pointer-events: none;       /* 下のものを押せるように */
 }
 
-.mypage-btn {
-  padding: 10px 22px;
-  background: #fff8f0;
-  color: var(--choco-dark);
-  border: 3px solid #ffb3cf;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: bold;
-  text-decoration: none;
-  box-shadow: 0 3px 0 var(--pink), 0 5px 8px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.mypage-btn:hover { transform: scale(1.05); }
 
-.header-actions { display: flex; align-items: center; gap: 12px; }
+.mypage-btn,
 .logout-btn {
   padding: 10px 22px;
   background: #fff8f0;
@@ -88,6 +81,8 @@ body {
   box-shadow: 0 3px 0 var(--pink), 0 5px 8px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s;
 }
+.mypage-btn { text-decoration: none; }
+.mypage-btn:hover,
 .logout-btn:hover { transform: scale(1.05); }
 
 /* =========================================
@@ -116,9 +111,9 @@ main {
   width: 150px;
   height: 150px;
   display: block;
-  border: 6px solid var(--choco-dark);              /* こげ茶のふち */
+  border: 6px solid var(--choco-dark);                                   /* こげ茶のふち */
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ff8fbb, #d63b78 80%);   /* イチゴチョコ */
+  background: radial-gradient(circle at 35% 35%, #ff8fbb, #d63b78 80%);  /* イチゴチョコ */
   text-decoration: none;
   box-shadow:
     inset 0 3px 3px rgba(255, 255, 255, 0.35),
@@ -127,7 +122,7 @@ main {
     0 12px 18px rgba(58, 27, 14, 0.4);
   transition: transform 0.1s, box-shadow 0.1s;
 }
-.post-circle:hover  { transform: scale(1.05); }
+.post-circle:hover { transform: scale(1.05); }
 .post-circle[aria-disabled="true"] {
   cursor: default;
   opacity: 0.85;
@@ -161,7 +156,7 @@ main {
   border-radius: 50%;
 }
 
-/* プラス(型押しのチョコ) */
+/* プラス */
 .post-plus {
   position: absolute;
   left: 50%;
@@ -174,14 +169,14 @@ main {
 .post-plus::after {
   content: "";
   position: absolute;
-  background: linear-gradient(180deg, #fff, #ffd6e6);
+  background: #fff;
   border-radius: 5px;
-  box-shadow: 0 2px 0 #a82f64, 0 4px 6px rgba(120, 20, 60, 0.45);
+  box-shadow: 0 2px 0 var(--pink-shadow), 0 4px 6px rgba(150, 30, 80, 0.4);
 }
-.post-plus::before { left: 0; right: 0; top: 50%; height: 11px; transform: translateY(-50%); }
-.post-plus::after  { top: 0; bottom: 0; left: 50%; width: 11px; transform: translateX(-50%); }
+.post-plus::before { left: 0; right: 0; top: 50%; height: 10px; transform: translateY(-50%); }
+.post-plus::after  { top: 0; bottom: 0; left: 50%; width: 10px; transform: translateX(-50%); }
 
-/* ツヤの反射(茶色の部分に) */
+/* ツヤの反射 */
 .choco-shine {
   position: absolute;
   top: 9%;
@@ -194,16 +189,6 @@ main {
   filter: blur(1px);
   pointer-events: none;
 }
-.post-plus::before,
-.post-plus::after {
-  content: "";
-  position: absolute;
-  background: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 0 var(--pink-shadow), 0 4px 6px rgba(150, 30, 80, 0.4);
-}
-.post-plus::before { left: 0; right: 0; top: 50%; height: 10px; transform: translateY(-50%); }
-.post-plus::after  { top: 0; bottom: 0; left: 50%; width: 10px; transform: translateX(-50%); }
 
 /* まわりのリング */
 .ring {
@@ -222,13 +207,6 @@ main {
   stroke-dashoffset: 0;
 }
 
-.post-label {
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 1.3;
-  text-align: center;
-  text-shadow: 0 1px 2px rgba(184, 76, 122, 0.6);
-}
 /* タイマー(小さく下に) */
 .post-timer {
   position: absolute;
@@ -245,15 +223,13 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
-
 /* =========================================
    カレンダー(板チョコ風)
    ========================================= */
-#calendar { --cell-ratio: 3 / 4; } 
 .calendar-container {
   width: 100%;
   margin-top: 28px;
-  padding: 24px;
+  padding: 16px;
   border-radius: 18px;
   background: linear-gradient(160deg, #6a3f2a, var(--choco-dark) 55%, var(--choco-deep));
   box-shadow:
@@ -316,6 +292,7 @@ main {
   grid-template-columns: repeat(7, minmax(0, 1fr));   /* 中身で列が広がらない */
   gap: 6px;
 }
+#calendar { --cell-ratio: 3 / 4; }
 
 /* --- 曜日 --- */
 .calendar-weekdays div {
@@ -335,6 +312,7 @@ main {
 .calendar-day {
   position: relative;
   aspect-ratio: var(--cell-ratio);
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,18 +373,12 @@ main {
 .calendar-day.today.has-post::after { background: #fff; }
 
 /* 写真がある日:写真をマスいっぱいに */
-
-.calendar-day {
-  aspect-ratio: var(--cell-ratio);
-  min-width: 0;
-}
-
 .calendar-day img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;   
+  object-fit: cover;
 }
 .calendar-day.has-photo::after { display: none; }   /* 写真があるときは点は不要 */
 .calendar-day.has-photo .day-num {
@@ -419,12 +391,6 @@ main {
   background: rgba(255, 255, 255, 0.85);
   color: var(--choco-dark);
   font-size: 12px;
-  font-weight: bold;
-}
-.calendar-container {
-  width: 100%;
-  max-width: none;                /* 幅の制限なし */
-  padding: 16px;
 }
 .calendar-day.today.has-photo {
   outline: 3px solid var(--pink-light);
@@ -435,30 +401,6 @@ main {
   color: #fff;
 }
 
-/* --- 選んだ日の日記カード --- */
-#day-posts {
-  margin-top: 16px;
-  text-align: left;
-}
-.post-card {
-  margin-bottom: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--cream);
-}
-.post-card img {
-  max-width: 100%;
-  margin-bottom: 8px;
-  border-radius: 8px;
-}
-.post-card p {
-  margin: 0;
-  white-space: pre-wrap;
-}
-.no-post {
-  color: var(--milk);
-  text-align: center;
-}
 
 /* =========================================
    スマホ(狭い画面)
@@ -478,51 +420,177 @@ main {
   .calendar-weekdays div { padding: 6px 0; font-size: 16px; }
 
   .post-circle { width: 110px; height: 110px; }
-  .post-label  { font-size: 12px; }
-  .post-timer  { font-size: 12px; }
 }
+/* =========================================================s
+
+   見開きの本。右ページを画面の中央に置き、
+   左ページ(前の日)を左に、革のカバーを外側に回す。
+
+   構成
+     1. サイズ(ここの変数だけで調整できる)
+     2. 革のカバー
+     3. 左ページ(押すと前の日)
+     4. 右ページ(紙・日付・写真・文章)
+     5. 右下のめくれた角(押すと次の日)
+     6. ボタン(本の下に浮かせる)
+     7. 友達を選ぶパネル
+     8. ページをめくるアニメーション
+     9. 狭い画面
+   ========================================================= */
 
 
+/* =========================================================
+   1. サイズ
+   ========================================================= */
 .day-modal {
+  --book-h: min(640px, calc(100vh - 220px));   /* 本の高さ */
+  --book-w: 460px;                              /* 1ページの最大幅 */
+  --cover:  16px;                               /* カバーの厚み */
+  --pad:    24px;                               /* 画面の端との余白 */
+
+  /* 1ページの幅。縦長(高さ×0.72)を保ち、左ページ+右ページ+右の余白が画面に収まる幅 */
+  --page-w: min(
+    var(--book-w),
+    calc(var(--book-h) * 0.72),
+    calc((100vw - var(--cover) * 2 - var(--pad) * 2) / 3)
+  );
+  --left: var(--page-w);                        /* 左ページが左に出る幅 */
+
   position: fixed;
   inset: 0;
   z-index: 100;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  padding: 20px;
+  align-items: safe center;
+  justify-content: safe center;
+  gap: 40px;
+  padding: var(--pad) var(--pad) 120px;         /* 下はボタンの分 */
+  overflow-y: auto;
   background: rgba(58, 27, 14, 0.55);
 }
+.day-modal[hidden] { display: none; }
 
-.day-modal[hidden] {
-  display: none;
-}
+/* 友達選択が閉じている間は場所を取らない */
+.day-modal:has(#friend-picker[hidden]) .share-side { display: none; }
 
-.book-page {
+.book-spread {
   position: relative;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 720px;
-  width: 720px;
-  height: 560px;
-  padding: 42px 48px 32px;
-  overflow: hidden;
-  border: 8px solid #d4a359;
-  border-radius: 12px;
-  background: #fff8e8;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  flex: 0 0 auto;
+  width: var(--page-w);
+  /* 左右の余白を同じにして、右ページを中央に置く */
+  margin: var(--cover) calc(var(--left) + var(--cover));
+}
+/* 友達選択を開いている間は、右の余白を詰めてパネルの場所をあける */
+.day-modal:not(:has(#friend-picker[hidden])) .book-spread {
+  margin-right: var(--cover);
 }
 
 .book-column {
-  display: flex;
-  flex: 0 0 720px;
-  flex-direction: column;
-  gap: 16px;
-  width: 720px;
+  position: relative;
+  width: 100%;
 }
 
+
+/* =========================================================
+   2. 革のカバー(本全体の背後に回す)
+   ========================================================= */
+.book-spread::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--cover) * -1);
+  right: calc(var(--cover) * -1);
+  bottom: calc(var(--cover) * -1);
+  left: calc((var(--left) + var(--cover)) * -1);
+  z-index: -1;
+  border-radius: 18px;
+  background:
+    /* 丸みのある陰影 */
+    linear-gradient(to right,
+      rgba(0, 0, 0, .4) 0, rgba(255, 255, 255, .12) 12px,
+      rgba(255, 255, 255, 0) 40px, rgba(0, 0, 0, .18) 100%),
+    /* 革のしぼ */
+    radial-gradient(rgba(0, 0, 0, .2) 1px, transparent 1.5px) 0 0 / 5px 5px,
+    #5a3220;
+  box-shadow:
+    inset 0 0 0 3px #b8893c,                    /* 金の縁取り */
+    inset 0 0 0 5px rgba(58, 27, 14, .7),
+    inset 0 0 0 7px rgba(232, 196, 122, .35),
+    4px 10px 24px rgba(58, 27, 14, .55);
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   3. 左ページ(右ページの左に並ぶ。少しくすませて控えめに)
+   ========================================================= */
+.book-left-page {
+  position: absolute;
+  top: 0;
+  left: calc(var(--left) * -1);
+  z-index: 0;                                   /* 右ページより奥 */
+  width: var(--page-w);
+  height: var(--book-h);
+  min-height: 420px;
+  padding: 0;
+  overflow: hidden;
+  border: 8px solid #d4a359;
+  border-radius: 14px 6px 6px 14px;
+  background:
+    linear-gradient(to left, rgba(70, 40, 20, .38) 0, rgba(70, 40, 20, .14) 30px, rgba(70, 40, 20, 0) 80px),
+    #efe2c4;
+  box-shadow:
+    -1px 1px 0 #fff8e8, -2px 2px 0 #e6d3a5,
+    -3px 3px 0 #fff8e8, -4px 4px 0 #dcc28a,
+    -6px 10px 20px rgba(58, 27, 14, .35);
+  filter: brightness(.94) saturate(.9);
+  cursor: pointer;
+  transition: filter .2s;
+}
+.book-left-page:hover { filter: brightness(.99) saturate(1); }
+
+.left-page-hint {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  letter-spacing: .2em;
+  color: rgba(104, 74, 59, .45);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   4. 右ページ(紙・日付・写真・文章)
+   ========================================================= */
+.book-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: var(--book-h);
+  min-height: 420px;
+  padding: 40px 34px 52px;                      /* 下は、めくれた角と文章が重ならない分 */
+  overflow: hidden;
+  border: 8px solid #d4a359;                    /* 金のふち */
+  border-radius: 6px 14px 14px 6px;
+  background-color: #fffaf0;
+  background-image:
+    /* 綴じ目(左)の影 */
+    linear-gradient(to right, rgba(90, 58, 42, .24) 0, rgba(90, 58, 42, .09) 16px, rgba(90, 58, 42, 0) 46px),
+    /* 右端のわずかな陰 */
+    linear-gradient(to left, rgba(90, 58, 42, .07) 0, rgba(90, 58, 42, 0) 24px);
+  /* 下に重なっているページの縁 + ふちの光 + 手前に浮かせる影 */
+  box-shadow:
+    1px 1px 0 #fff8e8, 2px 2px 0 #e6d3a5,
+    3px 3px 0 #fff8e8, 4px 4px 0 #dcc28a,
+    5px 5px 0 #fff8e8, 6px 6px 0 #d4a359,
+    0 0 0 3px rgba(255, 236, 190, .55),
+    14px 20px 34px rgba(58, 27, 14, .55);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+}
+
+/* ステッチ(点線) */
 .book-page::before {
   content: "";
   position: absolute;
@@ -544,10 +612,12 @@ main {
   cursor: pointer;
 }
 
-.book-post {
-  position: relative;
-  z-index: 1;
-  margin-top: 18px;
+.book-date {
+  margin: 0;
+  padding-bottom: .4em;
+  border-bottom: 1px solid rgba(139, 100, 60, .35);
+  letter-spacing: .08em;
+  font-size: 18px;
 }
 
 #book-content {
@@ -556,15 +626,18 @@ main {
   overflow-y: auto;
   scrollbar-width: none;
 }
+#book-content::-webkit-scrollbar { display: none; }
 
-#book-content::-webkit-scrollbar {
-  display: none;
+.book-post {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
 }
 
 .book-post img {
   display: block;
   max-width: 100%;
-  max-height: 280px;
+  max-height: 260px;
   margin: 0 auto 16px;
   object-fit: contain;
 }
@@ -574,18 +647,24 @@ main {
   line-height: 1.8;
 }
 
+/* 日記の文章に罫線を引く */
+#book-content .post-text {
+  line-height: 1.9;
+  background-image: linear-gradient(transparent calc(1.9em - 1px), rgba(139, 100, 60, .28) 0);
+  background-size: 100% 1.9em;
+}
+
+/* 交換申請 */
 .share-request-label {
   color: #684a3b;
   font-weight: 700;
 }
-
 .share-request-actions {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 12px;
 }
-
 .share-request-actions button {
   padding: 8px 14px;
   border: 2px solid #4e2a18;
@@ -594,32 +673,72 @@ main {
   color: #4e2a18;
   cursor: pointer;
 }
+.share-request-actions button:hover { background: #fff8e8; }
 
-.share-request-actions button:hover {
-  background: #fff8e8;
-}
 
-.share-side {
-  display: flex;
-  flex: 0 0 320px;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 16px;
-  width: 320px;
-}
-
-.book-actions {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-  width: 100%;
-  padding: 16px;
+/* =========================================================
+   5. 右下のめくれた角(押すと次の日)
+   ========================================================= */
+.book-page .page-curl {
+  all: unset;                                   /* ボタンの標準装飾を打ち消す */
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 56px;
+  height: 56px;
   box-sizing: border-box;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  cursor: pointer;
+  filter: drop-shadow(-2px -2px 2px rgba(60, 40, 10, .35));
+  transition: width .25s ease, height .25s ease;
+}
+.book-page .page-curl:hover,
+.book-page .page-curl:focus-visible {
+  width: 80px;
+  height: 80px;
+}
+.book-page .page-curl:focus-visible {
+  outline: 2px solid #8b643c;
+  outline-offset: -2px;
+}
+
+.book-page .page-curl::before,
+.book-page .page-curl::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+/* めくれて見える「次のページ」 */
+.book-page .page-curl::before {
+  background: linear-gradient(135deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, 0) 65%), #efe3c6;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+/* 折り返した紙の裏側 */
+.book-page .page-curl::after {
+  background: linear-gradient(315deg, #cdbb8f 0%, #fffdf7 35%, #f3e9d0 100%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+
+/* =========================================================
+   6. ボタン(本の下に浮かせる。出ても消えても本は動かない)
+   ========================================================= */
+.book-actions {
+  position: absolute;
+  top: calc(100% + var(--cover) + 16px);
+  left: 0;
+  right: 0;
+  z-index: 1;
   text-align: center;
 }
+
+.book-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.book-action-buttons button[hidden] { display: none; }
 
 .book-actions button {
   padding: 10px 18px;
@@ -629,36 +748,41 @@ main {
   color: #4e2a18;
   cursor: pointer;
 }
+.book-actions .doodle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
+/* 暗い背景の上に出るので、明るい文字色にする */
 .share-message {
   min-height: 1.5em;
-  margin: 8px 0 0;
+  margin: 10px 0 0;
+  color: var(--milk, #ffe9d2);
+  font-size: 14px;
 }
 
-.book-navigation {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
+
+/* =========================================================
+   7. 友達を選ぶパネル(本の右に出る)
+   ========================================================= */
+.share-side {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 28px;
-}
-
-.friend-picker {
-  position: static;
+  flex: 0 0 320px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
   width: 320px;
 }
 
-.friend-picker[hidden] {
-  display: none;
-}
+.friend-picker { width: 320px; }
+.friend-picker[hidden] { display: none; }
 
 .friend-picker-panel {
   position: relative;
-  box-sizing: border-box;
   width: 320px;
-  height: 560px;
+  height: var(--book-h);
+  min-height: 420px;
   padding: 36px 24px 24px;
   overflow-y: auto;
   border: 6px solid #d4a359;
@@ -690,7 +814,6 @@ main {
   display: grid;
   gap: 10px;
 }
-
 #friend-list button {
   width: 100%;
   padding: 12px 16px;
@@ -701,10 +824,7 @@ main {
   font-size: 16px;
   cursor: pointer;
 }
-
-#friend-list button:hover {
-  background: #f5dfb5;
-}
+#friend-list button:hover { background: #f5dfb5; }
 
 #friend-message {
   min-height: 1.5em;
@@ -713,165 +833,17 @@ main {
   text-align: center;
 }
 
-@media (max-width: 900px) {
-  .day-modal {
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .book-page {
-    flex: 0 0 560px;
-    height: 560px;
-    width: min(720px, 100%);
-  }
-
-  .book-column {
-    flex-basis: auto;
-    width: min(720px, 100%);
-  }
-
-  .friend-picker {
-    width: min(720px, 100%);
-  }
-
-  .share-side {
-    width: min(720px, 100%);
-    flex-basis: auto;
-  }
-
-  .book-actions {
-    width: 100%;
-  }
-
-  .friend-picker-panel {
-    width: 100%;
-    height: auto;
-    max-height: 320px;
-  }
-}
 
 /* =========================================================
-   日記ページを「本」っぽくする(home.css のあとに読み込む)
-   - 金のふち = 本の表紙、点線 = ステッチ(home.css のまま活かす)
-   - 紙の質感・背表紙の影・下に重なったページの縁・罫線
-   - 背表紙は固定。紙(ページ)だけが背表紙を軸にめくれる
-   - 左下 / 右下のめくれた角(押すと 前の日 / 次の日 へめくる)
+   8. ページをめくるアニメーション(JS が一時的に紙を作る)
+      綴じ目は動かさず、紙だけが左へめくれる
    ========================================================= */
-
-/* ---- ページ本体 ---- */
-.day-modal .book-column .book-page {
-  padding-bottom: 52px;               /* めくれた角と文章が重ならないように */
-  background-color: #fff8e8;
-  background-image:
-    /* 背表紙側(左)の影 */
-    linear-gradient(to right, rgba(90, 58, 42, .24) 0, rgba(90, 58, 42, .09) 16px, rgba(90, 58, 42, 0) 46px),
-    /* 右端のわずかな陰 */
-    linear-gradient(to left, rgba(90, 58, 42, .07) 0, rgba(90, 58, 42, 0) 24px);
-  border-radius: 6px 14px 14px 6px;
-  /* 下に重なっているページの縁 + 全体の影 */
-  box-shadow:
-    1px 1px 0 #fff8e8, 2px 2px 0 #e6d3a5,
-    3px 3px 0 #fff8e8, 4px 4px 0 #dcc28a,
-    5px 5px 0 #fff8e8, 6px 6px 0 #d4a359,
-    10px 14px 24px rgba(58, 27, 14, .4);
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
-}
-
-/* 日付 */
-.day-modal .book-date {
-  margin: 0;
-  padding-bottom: .4em;
-  border-bottom: 1px solid rgba(139, 100, 60, .35);
-  letter-spacing: .08em;
-  font-size: 18px;
-}
-
-/* 日記の文章に罫線を引く */
-.day-modal #book-content .post-text {
-  line-height: 1.9;
-  background-image: linear-gradient(transparent calc(1.9em - 1px), rgba(139, 100, 60, .28) 0);
-  background-size: 100% 1.9em;
-}
-
-/* ---- めくれた角 ---- */
-.day-modal .book-page .page-curl {
-  all: unset;                         /* ボタンの標準装飾を打ち消す */
-  position: absolute;
-  bottom: 0;
-  width: 56px;
-  height: 56px;
-  box-sizing: border-box;
-  cursor: pointer;
-  z-index: 3;
-  transition: width .25s ease, height .25s ease;
-}
-.day-modal .book-page .page-curl-next { right: 0; filter: drop-shadow(-2px -2px 2px rgba(60, 40, 10, .35)); }
-.day-modal .book-page .page-curl-prev { left: 0;  filter: drop-shadow(2px -2px 2px rgba(60, 40, 10, .35)); }
-
-.day-modal .book-page .page-curl:hover,
-.day-modal .book-page .page-curl:focus-visible {
-  width: 80px;
-  height: 80px;
-}
-.day-modal .book-page .page-curl:focus-visible {
-  outline: 2px solid #8b643c;
-  outline-offset: -2px;
-}
-
-.day-modal .book-page .page-curl::before,
-.day-modal .book-page .page-curl::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
-/* 右下: めくれて見える「次のページ」と、折り返した紙の裏側 */
-.day-modal .book-page .page-curl-next::before {
-  background: linear-gradient(135deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, 0) 65%), #efe3c6;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-.day-modal .book-page .page-curl-next::after {
-  background: linear-gradient(315deg, #cdbb8f 0%, #fffdf7 35%, #f3e9d0 100%);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-
-/* 左下: 左右反転 */
-.day-modal .book-page .page-curl-prev::before {
-  background: linear-gradient(225deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, 0) 65%), #efe3c6;
-  clip-path: polygon(0 0, 0 100%, 100% 100%);
-}
-.day-modal .book-page .page-curl-prev::after {
-  background: linear-gradient(45deg, #cdbb8f 0%, #fffdf7 35%, #f3e9d0 100%);
-  clip-path: polygon(100% 100%, 0 0, 100% 0);
-}
-
-/* ---- 背表紙(固定) ---- */
-.day-modal .book-column { position: relative; }
-.day-modal .book-column::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 18px;
-  height: var(--page-h, 560px);       /* .book-page の実際の高さ(JSが入れる) */
-  z-index: 6;                         /* めくれる紙より手前に置く */
-  border-radius: 6px 0 0 6px;
-  background:
-    linear-gradient(to right, rgba(255, 255, 255, .18) 0, rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, .25) 100%),
-    linear-gradient(to right, #4e2a18, #684a3b 55%, #3a1b0e);
-  box-shadow: 2px 0 5px rgba(0, 0, 0, .4);
-  pointer-events: none;
-}
-
-/* ---- めくれる紙(JS が一時的に作る) ---- */
 .page-sheet {
   position: absolute;
   z-index: 5;
   pointer-events: none;
   transform-style: preserve-3d;
-  transform-origin: left center;      /* 背表紙側を軸にする */
+  transform-origin: left center;                /* 綴じ目側を軸にする */
 }
 .page-sheet > div {
   position: absolute;
@@ -879,16 +851,18 @@ main {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
+
 /* 紙の表(めくる前のページそのもの) */
-.page-sheet .sheet-front > .book-page {
+.day-modal .page-sheet .sheet-front > .book-page {
   width: 100%;
   height: 100%;
-  flex: none;
+  min-height: 0;
   margin: 0;
   box-shadow: none;
 }
 .page-sheet .page-curl,
 .page-sheet .book-close { visibility: hidden; }
+
 /* 紙の裏 */
 .page-sheet .sheet-back {
   transform: rotateY(180deg);
@@ -896,10 +870,10 @@ main {
   border-radius: 14px 6px 6px 14px;
   background:
     linear-gradient(to left, rgba(90, 58, 42, .24) 0, rgba(90, 58, 42, .09) 16px, rgba(90, 58, 42, 0) 46px),
-    #fff8e8;
+    #fffaf0;
 }
 
-/* 次の日: 今のページが左へめくれていき、下から次のページが現れる */
+/* 次の日: 今のページが左へめくれ、下から次のページが現れる */
 .page-sheet.sheet-next { animation: sheetTurn .8s cubic-bezier(.5, .05, .3, 1) forwards; }
 /* 前の日: 前のページが左から戻ってきて、今のページに重なる */
 .page-sheet.sheet-prev { animation: sheetTurn .8s cubic-bezier(.5, .05, .3, 1) reverse forwards; }
@@ -923,40 +897,45 @@ main {
 
 @media (prefers-reduced-motion: reduce) {
   .page-sheet { display: none; }
-  .day-modal .book-page .page-curl { transition: none; }
-}
-/* =========================================================
-   本を画面の真ん中に置く
-   - 友達選択が閉じている間は .share-side を場所取りさせない
-   - 画面が低いときははみ出さず、モーダル内でスクロールできる
-   ========================================================= */
-.day-modal {
-  align-items: safe center;
-  justify-content: safe center;
-  overflow-y: auto;
-}
-.day-modal:has(#friend-picker[hidden]) .share-side {
-  display: none;
-}
-.day-modal .book-column {
-  margin-block: auto;
-}
-.day-modal .book-column .book-page {
-  flex: 0 0 auto;                     /* 縦並びの中で幅720pxが高さになってしまうのを防ぐ */
-  height: min(560px, calc(100vh - 140px));
-  min-height: 360px;
+  .book-page .page-curl { transition: none; }
 }
 
-/* 「友達と交換する」と「落書き」を横に並べる */
-.book-action-buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
+
+/* =========================================================
+   9. 狭い画面
+   ========================================================= */
+@media (max-width: 900px) {
+  .day-modal { flex-direction: column; }
+
+  .share-side {
+    flex-basis: auto;
+    width: min(var(--book-w), 100%);
+  }
+  .friend-picker { width: 100%; }
+  .friend-picker-panel {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: 320px;
+  }
 }
-.book-action-buttons button[hidden] { display: none; }
-.book-actions .doodle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+
+/* スマホ:2ページは並べられないので、左ページは少しだけのぞかせる */
+@media (max-width: 600px) {
+  .day-modal {
+    --peek: 28px;                               /* 左ページがのぞく幅 */
+    --pad: 12px;
+    --page-w: min(var(--book-w), calc(100vw - var(--peek) * 2 - var(--cover) * 2 - var(--pad) * 2));
+    --left: var(--peek);
+  }
+  .book-page { padding: 36px 24px 52px; }
+  .left-page-hint {
+    top: 50%;
+    bottom: auto;
+    left: 8px;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-size: 12px;
+  }
 }
+
