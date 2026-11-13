@@ -8,12 +8,21 @@ const DEMO_MODE = location.hostname.endsWith('github.io');
 const demoGet = (key, fallback) => { try { return JSON.parse(localStorage.getItem('demo.' + key)) ?? fallback; } catch { return fallback; } };
 const demoSet = (key, value) => localStorage.setItem('demo.' + key, JSON.stringify(value));
 
+// bg: そのキャラを選んだときのウェブサイトの背景色
 const CHARACTERS = [
-  { id: 'pink', name: 'ピンク', image: 'image/pink.webp', card: 'image/card-pink.jpg' },
-  { id: 'orange', name: 'オレンジ', image: 'image/orange.webp', card: 'image/card-orange.jpg' },
-  { id: 'purple', name: 'パープル', image: 'image/purple.webp', card: 'image/card-purple.jpg' },
-  { id: 'blue', name: 'ブルー', image: 'image/blue.webp', card: 'image/card-blue.jpg' },
+  { id: 'pink', name: 'ピンク', image: 'image/pink.webp', card: 'image/card-pink.jpg', bg: '#fca5b8' },
+  { id: 'orange', name: 'オレンジ', image: 'image/orange.webp', card: 'image/card-orange.jpg', bg: '#ffc48a' },
+  { id: 'purple', name: 'パープル', image: 'image/purple.webp', card: 'image/card-purple.jpg', bg: '#cfb0ee' },
+  { id: 'blue', name: 'ブルー', image: 'image/blue.webp', card: 'image/card-blue.jpg', bg: '#a8d4f5' },
 ];
+
+// キャラに合わせて背景色を変える(次のページでもすぐ反映できるよう保存。theme.js が読む)
+function applyTheme(characterId) {
+  const c = CHARACTERS.find((x) => x.id === characterId);
+  if (!c) return;
+  document.documentElement.style.setProperty('--theme-bg', c.bg);
+  try { localStorage.setItem('theme.bg', c.bg); } catch { /* 保存できなくても今のページには反映済み */ }
+}
 
 // 同期API呼び出し。通信失敗は例外
 function api(method, path, body) {
@@ -33,10 +42,15 @@ function api(method, path, body) {
 // ---- ログイン状態 ----
 let meCache; // undefined=未取得, null=未ログイン
 function me() {
-  if (DEMO_MODE) return { username: demoGet('name', 'ゲスト'), userId: demoGet('userId', 'guest'), character: demoGet('character', 'cat') };
+  if (DEMO_MODE) {
+    const user = { username: demoGet('name', 'ゲスト'), userId: demoGet('userId', 'guest'), character: demoGet('character', 'cat') };
+    applyTheme(user.character);
+    return user;
+  }
   if (meCache === undefined) {
     const r = api('GET', '/api/me');
     meCache = r.ok ? r.data : null;
+    if (meCache) applyTheme(meCache.character); // 別の端末でキャラを変えた場合もここで合わせる
   }
   return meCache;
 }
@@ -176,9 +190,10 @@ const DEMO_USERS = [
 ];
 
 function setCharacter(id) {
-  if (DEMO_MODE) { demoSet('character', id); return; }
+  if (DEMO_MODE) { demoSet('character', id); applyTheme(id); return; }
   const r = api('PUT', '/api/me/character', { character: id });
   if (!r.ok) throw new Error((r.data && r.data.error) || 'キャラの変更に失敗しました');
+  applyTheme(id);
   meCache = undefined;
 }
 

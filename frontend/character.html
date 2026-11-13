@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>キャラ選択 - pikunikki</title>
     <link rel="stylesheet" href="style.css">
+    <script src="theme.js"></script>
 </head>
 <body class="character-page">
 <div class="home-header">
@@ -38,6 +39,7 @@ CHARACTERS.forEach((c) => {
   el.innerHTML = `<img src="${c.card}" alt="${c.name}">`;
   el.onclick = () => {
     selected = c.id;
+    applyTheme(c.id);
     box.querySelectorAll('.char').forEach((x) => x.classList.remove('selected'));
     el.classList.add('selected');
     document.getElementById('ok').classList.add('glow');

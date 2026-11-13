@@ -19,8 +19,9 @@
 
 body {
   margin: 0;
-  background: #fca5b8;
+  background: var(--theme-bg, #fca5b8);
   color: var(--choco-deep);
+  transition: background-color 0.4s;
   font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
 }
 

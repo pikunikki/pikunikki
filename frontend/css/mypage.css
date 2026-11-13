@@ -1,5 +1,5 @@
 :root {
-  --bg-pink: #fca5b8;
+  --bg-pink: var(--theme-bg, #fca5b8);
   --card-bg: #fff8f8;
   --chocolate: #684a3b;
   --chocolate-deep: #4a2810;
@@ -16,6 +16,7 @@
 body {
   margin: 0;
   background-color: var(--bg-pink);
+  transition: background-color 0.4s;
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
