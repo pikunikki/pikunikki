@@ -86,6 +86,9 @@
 
         let photoData = null;
 
+        // id にハイフンがある要素は名前だけでは使えないので、ここで取得しておく
+        const uploadContent = document.getElementById('upload-content');
+
         function shrink(file) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
