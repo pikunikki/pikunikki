@@ -67,7 +67,7 @@ textarea { min-height: 120px; }
 .char small { display: block; font-size: .8rem; }
 .char.selected { border-color: #ff8c42; }
 /* キャラ選択画面: チェキ風カードを横一列に並べる */
-.character-page { background: #fca5b8; }
+.character-page { background: var(--theme-bg, #fca5b8); transition: background-color 0.4s; }
 .character-page main { max-width: 1000px; }
 .character-page .chars { display: flex; flex-wrap: nowrap; justify-content: center; gap: 16px; }
 .character-page .char { flex: 1 1 0; min-width: 0; max-width: 240px; padding: 0; background: none; border: 0; border-radius: 0; transition: transform .15s, filter .15s; }
