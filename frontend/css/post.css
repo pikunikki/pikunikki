@@ -5,7 +5,7 @@
 ========================================= */
 
 :root {
-    --background: #fca5b8;
+    --background: var(--theme-bg, #fca5b8);
     --cream: #fff8f8;
 
     --choco: #684a3b;
