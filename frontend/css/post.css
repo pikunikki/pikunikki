@@ -224,7 +224,7 @@ body.post-body {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100vh;
+    height: 500vh;
 
     pointer-events: none;
     z-index: 1;
@@ -269,16 +269,16 @@ body.post-body {
 }
 
 /* 個別設定 */
-.h-1  { left: 5%;  font-size: 35px; --duration: 7s;  --delay: -2s; }
-.h-2  { left: 15%; font-size: 24px; --duration: 9s;  --delay: -4s; }
-.h-3  { left: 28%; font-size: 40px; --duration: 6s;  --delay: -1s; }
-.h-4  { left: 40%; font-size: 28px; --duration: 11s; --delay: -5s; }
-.h-5  { left: 55%; font-size: 32px; --duration: 8s;  --delay: -3s; }
-.h-6  { left: 70%; font-size: 30px; --duration: 10s; --delay: -6s; }
-.h-7  { left: 82%; font-size: 45px; --duration: 7s;  --delay: -3s; }
-.h-8  { left: 92%; font-size: 26px; --duration: 9s;  --delay: -5s; }
-.h-9  { left: 20%; font-size: 22px; --duration: 12s; --delay: -7s; }
-.h-10 { left: 62%; font-size: 38px; --duration: 6.5s; --delay: -2s; }
+.h-1  { left: 5%;  font-size: 70px; --duration: 7s;  --delay: -2s; }
+.h-2  { left: 15%; font-size: 48px; --duration: 9s;  --delay: -4s; }
+.h-3  { left: 28%; font-size: 80px; --duration: 6s;  --delay: -1s; }
+.h-4  { left: 40%; font-size: 56px; --duration: 11s; --delay: -5s; }
+.h-5  { left: 55%; font-size: 60px; --duration: 8s;  --delay: -3s; }
+.h-6  { left: 70%; font-size: 60px; --duration: 10s; --delay: -6s; }
+.h-7  { left: 82%; font-size: 90px; --duration: 7s;  --delay: -3s; }
+.h-8  { left: 92%; font-size: 52px; --duration: 9s;  --delay: -5s; }
+.h-9  { left: 20%; font-size: 44px; --duration: 12s; --delay: -7s; }
+.h-10 { left: 62%; font-size: 76px; --duration: 6.5s; --delay: -2s; }
 
 /* 落下アニメーション */
 @keyframes fallHeart {
